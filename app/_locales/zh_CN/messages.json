@@ -1,0 +1,22 @@
+{
+  "appName": {
+    "message": "S Download Manager",
+    "description": "The name of the application"
+  },
+  "appShortName": {
+    "message": "SDM",
+    "description": "The short_name (maximum of 12 characters recommended) is a short version of the app's name."
+  },
+  "appDescription": {
+    "message": "Manage downloads.",
+    "description": "The description of the application"
+  },
+  "browserActionTitle": {
+    "message": "S Download Manager",
+    "description": "The title of the browser action button"
+  },
+  "test": {
+    "message": "测试a",
+    "description": ""
+  }
+}

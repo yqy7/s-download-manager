@@ -1,0 +1,24 @@
+{
+  "name": "S-Download-Manager",
+  "version": "0.0.1",
+  "description": "Manage downloads.",
+  "scripts": {
+    "dev": "webextension-toolbox dev",
+    "build": "webextension-toolbox build"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.0.124",
+    "css-loader": "^4.3.0",
+    "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "vue": "^2.6.12",
+    "vue-loader": "^15.9.3",
+    "vue-template-compiler": "^2.6.12",
+    "webextension-toolbox": "latest",
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.17.3",
+    "dayjs": "^1.9.1",
+    "hotkeys-js": "^3.8.1"
+  }
+}
