@@ -15,8 +15,52 @@
     "message": "S Download Manager",
     "description": "The title of the browser action button"
   },
-  "test": {
-    "message": "Test",
+  "showDetail": {
+    "message": "Show detail",
+    "description": ""
+  },
+  "showInFolder": {
+    "message": "Show in folder",
+    "description": ""
+  },
+  "copyLink": {
+    "message": "Copy link",
+    "description": ""
+  },
+  "retry": {
+    "message": "Retry",
+    "description": ""
+  },
+  "delete": {
+    "message": "Delete",
+    "description": ""
+  },
+  "deleted": {
+    "message": "Deleted",
+    "description": ""
+  },
+  "previousPage": {
+    "message": "Previous page",
+    "description": ""
+  },
+  "nextPage": {
+    "message": "Next page",
+    "description": ""
+  },
+  "openDownloadFolder": {
+    "message": "Open download folder",
+    "description": ""
+  },
+  "openDownloadPage": {
+    "message": "Open download pages",
+    "description": ""
+  },
+  "setting": {
+    "message": "Setting",
+    "description": ""
+  },
+  "searchPlaceholder": {
+    "message": "Search...",
     "description": ""
   }
 }

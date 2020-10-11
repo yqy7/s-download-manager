@@ -1,8 +1,8 @@
 <template>
   <div class="footer">
     <div class="page-action">
-      <b-icon-chevron-left title="previous page" @click="$emit('pre-page')"></b-icon-chevron-left>
-      <b-icon-chevron-right title="next page" @click="$emit('next-page')"></b-icon-chevron-right>
+      <b-icon-chevron-left :title="i18n('previousPage')" @click="$emit('pre-page')"></b-icon-chevron-left>
+      <b-icon-chevron-right :title="i18n('nextPage')" @click="$emit('next-page')"></b-icon-chevron-right>
     </div>
   </div>
 </template>

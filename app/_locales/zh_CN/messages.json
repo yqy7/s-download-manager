@@ -15,8 +15,52 @@
     "message": "S Download Manager",
     "description": "The title of the browser action button"
   },
-  "test": {
-    "message": "测试a",
+  "showDetail": {
+    "message": "显示详细信息",
+    "description": ""
+  },
+  "showInFolder": {
+    "message": "在文件夹中显示",
+    "description": ""
+  },
+  "copyLink": {
+    "message": "复制链接",
+    "description": ""
+  },
+  "retry": {
+    "message": "重试",
+    "description": ""
+  },
+  "delete": {
+    "message": "删除",
+    "description": ""
+  },
+  "deleted": {
+    "message": "已删除",
+    "description": ""
+  },
+  "previousPage": {
+    "message": "上一页",
+    "description": ""
+  },
+  "nextPage": {
+    "message": "下一页",
+    "description": ""
+  },
+  "openDownloadFolder": {
+    "message": "打开下载文件夹",
+    "description": ""
+  },
+  "openDownloadPage": {
+    "message": "打开下载页面",
+    "description": ""
+  },
+  "setting": {
+    "message": "设置",
+    "description": ""
+  },
+  "searchPlaceholder": {
+    "message": "搜索...",
     "description": ""
   }
 }

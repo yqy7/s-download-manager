@@ -4,12 +4,12 @@
       <label for="search-box">
         <b-icon-search></b-icon-search>
       </label>
-      <b-form-input class="search-box" placeholder="Search..." id="search-box" v-model.lazy="value"
+      <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box" v-model.lazy="value"
                     v-on:change="$emit('input', value)"></b-form-input>
 
-      <b-icon-folder2-open title="打开下载文件夹" @click="openDownloadFolder"></b-icon-folder2-open>
-      <b-icon-gear title="打开设置" @click="openOptionPage"></b-icon-gear>
-      <b-icon-download title="open download page" @click="openDownloadPage"></b-icon-download>
+      <b-icon-folder2-open :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
+      <b-icon-gear :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
+      <b-icon-download :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
     </div>
   </div>
 </template>
@@ -18,6 +18,7 @@
 export default {
   props: ['value'],
   methods: {
+    i18n: chrome.i18n.getMessage,
     openDownloadFolder() {
       chrome.downloads.showDefaultFolder();
     },

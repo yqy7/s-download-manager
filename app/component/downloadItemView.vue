@@ -7,8 +7,8 @@
 
       <div class="item-info">
         <div class="item-filename">
-          <span v-bind:title="item.filename"
-                v-bind:class="{
+          <span :title="item.filename"
+                :class="{
                'file-not-exists': !fileExists() && item.state != 'in_progress',
                'file-in-progress': item.state == 'in_progress',
                'file-interrupted': item.state == 'interrupted'}"
@@ -18,7 +18,7 @@
           <span class="error-msg" v-if="hasError()">{{ errorMessage() }}</span>
         </div>
 
-        <div class="item-url" v-bind:title="item.finalUrl" @click="openUrl(item.finalUrl)">
+        <div class="item-url" :title="item.finalUrl" @click="openUrl(item.finalUrl)">
           {{ item.finalUrl }}
         </div>
 
@@ -38,21 +38,21 @@
         <table class="action-panel" v-show="isShow">
           <tr>
             <td>
-              <b-icon-list title="显示详细信息" @click="isShowDetail=!isShowDetail"></b-icon-list>
+              <b-icon-list :title="i18n('showDetail')" @click="isShowDetail=!isShowDetail"></b-icon-list>
             </td>
             <td>
-              <b-icon-folder2-open title="在文件夹中显示" @click="showInFolder"></b-icon-folder2-open>
+              <b-icon-folder2-open :title="i18n('showInFolder')" @click="showInFolder"></b-icon-folder2-open>
             </td>
             <td>
-              <b-icon-link title="复制链接" @click="copyLink"></b-icon-link>
+              <b-icon-link :title="i18n('copyLink')" @click="copyLink"></b-icon-link>
             </td>
             <td>
-              <b-icon-arrow-clockwise title="重试" @click="retry"></b-icon-arrow-clockwise>
+              <b-icon-arrow-clockwise :title="i18n('retry')" @click="retry"></b-icon-arrow-clockwise>
             </td>
           </tr>
           <tr>
             <td>
-              <b-icon-x-circle title="删除" style="color: red;" @click="deleteRecord"></b-icon-x-circle>
+              <b-icon-x-circle :title="i18n('delete')" style="color: red;" @click="deleteRecord"></b-icon-x-circle>
             </td>
           </tr>
         </table>
@@ -128,7 +128,7 @@ export default {
     }
   },
   created() {
-    if (this.item.filename) { // 没有文件名会报错
+    if (this.item.filename) {
       chrome.downloads.getFileIcon(
           this.item.id,
           {'size': 32},
@@ -143,6 +143,7 @@ export default {
     }
   },
   methods: {
+    i18n: chrome.i18n.getMessage,
     showActionPanel() {
       this.isShow = true;
     },
@@ -218,7 +219,7 @@ export default {
       if (this.item.error) {
         return this.item.error;
       } else {
-        return '已删除';
+        return this.i18n('deleted');
       }
     }
   },
@@ -333,7 +334,8 @@ export default {
   justify-content: space-between;
   padding-top: 5px;
 }
-/* 过渡效果 */
+
+/* transition */
 .slide-fade-enter-active {
   transition: all .3s ease;
 }
