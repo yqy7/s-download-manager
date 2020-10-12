@@ -26,7 +26,7 @@ chrome.downloads.onErased.addListener(downloadId => {
 
 chrome.downloads.onChanged.addListener(downloadDelta => {
   console.log('onChanged...', downloadDelta);
-  if (downloadDelta.state.current == 'complete' || downloadDelta.state.current == 'interrupted') {
+  if (downloadDelta.state && (downloadDelta.state.current == 'complete' || downloadDelta.state.current == 'interrupted')) {
     changeBadgeText();
   }
 });

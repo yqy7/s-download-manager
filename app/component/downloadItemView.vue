@@ -182,7 +182,7 @@ export default {
     }
 
     chrome.downloads.onChanged.addListener(downloadDelta => {
-      if (downloadDelta.danger.current == 'accepted') {
+      if (downloadDelta.danger && downloadDelta.danger.current == 'accepted') {
         this.progress_polling();
       }
     });
