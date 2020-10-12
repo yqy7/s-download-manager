@@ -15,15 +15,18 @@ changeBadgeText();
 
 // 监听下载事件
 chrome.downloads.onCreated.addListener(downloadItem => {
+  console.log('onCreated...');
   changeBadgeText();
 });
 
 chrome.downloads.onErased.addListener(downloadId => {
+  console.log('onErased...');
   changeBadgeText();
 });
 
 chrome.downloads.onChanged.addListener(downloadDelta => {
-  if (downloadDelta.state === 'complete' || downloadDelta.state === 'interrupted') {
+  console.log('onChanged...', downloadDelta);
+  if (downloadDelta.state.current == 'complete' || downloadDelta.state.current == 'interrupted') {
     changeBadgeText();
   }
 });

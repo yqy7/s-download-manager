@@ -1,7 +1,8 @@
 <template>
 <div>
+  <popup-header v-model="searchText"></popup-header>
+
   <div id="download-items" class="container">
-    <popup-header v-model="searchText"></popup-header>
 
     <ul class="item-list">
       <li v-for="item in items" :key="item.id">
@@ -9,8 +10,9 @@
       </li>
     </ul>
 
-    <popup-footer @pre-page="prePage" @next-page="nextPage"></popup-footer>
   </div>
+  <popup-footer @pre-page="prePage" @next-page="nextPage" @delete-all="deleteAll"></popup-footer>
+
 </div>
 </template>
 
@@ -53,12 +55,20 @@ export default {
     search() {
       chrome.downloads.search({
         orderBy:['-startTime'],
-        limit: 100,
+        limit: 50,
         query: [this.searchText]
       }, (items) => {
         this.items = items;
       });
       startTimes = []; // 每次搜索之后重新初始化
+    },
+    deleteAll() {
+      chrome.downloads.erase({
+        query: [this.searchText]
+      }, erasedIds => {
+        this.searchText = '';
+        this.search();
+      });
     },
     prePage() {
       if (this.items && this.items.length > 0) { // 没有元素说明没有访问过下一页
@@ -66,7 +76,7 @@ export default {
         let startTime = firstItem.startTime;
         let query = {
           orderBy:['-startTime'],
-          limit: 100,
+          limit: 50,
           query: [this.searchText],
           startedAfter: startTime
         };
@@ -74,8 +84,7 @@ export default {
         if (startTimes.length > 0) {
           startTimes.pop();
           if (startTimes.length > 0) {
-            let lastStartTime = startTimes[startTimes.length - 1];
-            query['startedBefore'] = lastStartTime;
+            query['startedBefore'] = startTimes[startTimes.length - 1];
           }
         }
 
@@ -94,7 +103,7 @@ export default {
 
         chrome.downloads.search({
           orderBy:['-startTime'],
-          limit: 100,
+          limit: 50,
           query: [this.searchText],
           startedBefore: startTime
         }, (items) => {
@@ -116,5 +125,6 @@ ul {
 .item-list {
   padding: 50px 0;
   margin-bottom: 0;
+  min-width: 400px;
 }
 </style>

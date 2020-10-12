@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="download-item" v-on:mouseover="showActionPanel" v-on:mouseout="hideActionPanel">
+    <div ref="download-item" class="download-item" v-on:mouseover="showActionPanel" v-on:mouseout="hideActionPanel">
       <div>
         <img v-bind:src="icon_url" class="item-img"/>
       </div>
@@ -9,9 +9,9 @@
         <div class="item-filename">
           <span :title="item.filename"
                 :class="{
-               'file-not-exists': !fileExists() && item.state != 'in_progress',
-               'file-in-progress': item.state == 'in_progress',
-               'file-interrupted': item.state == 'interrupted'}"
+               'file-not-exists': !fileExists() && item.state !== 'in_progress',
+               'file-in-progress': item.state === 'in_progress',
+               'file-interrupted': item.state === 'interrupted'}"
                 @click="openFile">
             {{ item.filename | shortName }}
           </span>
@@ -22,91 +22,122 @@
           {{ item.finalUrl }}
         </div>
 
-        <div class="item-status-line">
-          <span>{{ item.bytesReceived | sizeFormat}}</span>
-          <div v-if="item.state == 'in_progress'" class="progress-status">
-            <b-icon-play-fill v-if="item.canResume" @click="resume" style="color: green;"></b-icon-play-fill>
-            <b-icon-pause v-else @click="pause" style="color: blue;"></b-icon-pause>
-            <b-icon-x @click="cancel" style="color: red;"></b-icon-x>
-            <b-progress :value="item.bytesReceived" :max="item.totalBytes" variant="success" show-progress style="width: 150px"></b-progress>
+        <div v-if="item.state === 'in_progress'" class="progress-status">
+          <b-icon-play-fill v-if="item.canResume" @click="resume" style="color: green;"></b-icon-play-fill>
+          <b-icon-pause v-else @click="pause" style="color: blue;"></b-icon-pause>
+          <b-icon-x @click="cancel" style="color: red;"></b-icon-x>
+          <b-progress :value="item.bytesReceived" :max="item.totalBytes" variant="success" show-progress style="width: 150px"></b-progress>
+          <div class="download-speed" v-if="!item.paused">
+            <span>
+              {{ speed | sizeFormat}}/s
+            </span>
+            <span style="border-left: solid 1px darkgrey; margin-left: 5px; padding-left: 5px">
+            {{ item.estimatedEndTime | timeLeft }}
+            </span>
           </div>
-          <span>{{ item.endTime | dateFormat }}</span>
+        </div>
+
+        <div class="item-status-line">
+          <span>{{ item.bytesReceived | sizeFormat}}/{{ item.totalBytes | sizeFormat}}</span>
+          <span>{{ item.startTime | dateFormat }}</span>
         </div>
       </div>
 
       <transition name="slide-fade">
-        <table class="action-panel" v-show="isShow">
+        <table class="action-panel" v-show="isShow" ref="action-panel">
           <tr>
             <td>
-              <b-icon-list :title="i18n('showDetail')" @click="isShowDetail=!isShowDetail"></b-icon-list>
+              <b-icon-list :title="i18n('showDetail')" @click="isShowDetail=!isShowDetail" style="cursor: pointer;"></b-icon-list>
             </td>
             <td>
-              <b-icon-folder2-open :title="i18n('showInFolder')" @click="showInFolder"></b-icon-folder2-open>
+              <b-icon-folder2-open :title="i18n('showInFolder')" @click="showInFolder" style="cursor: pointer;"></b-icon-folder2-open>
             </td>
             <td>
-              <b-icon-link :title="i18n('copyLink')" @click="copyLink"></b-icon-link>
+              <b-icon-link :title="i18n('copyLink')" @click="copyLink" style="cursor: pointer;"></b-icon-link>
             </td>
             <td>
-              <b-icon-arrow-clockwise :title="i18n('retry')" @click="retry"></b-icon-arrow-clockwise>
+              <b-icon-arrow-clockwise :title="i18n('retry')" @click="retry"
+                                      v-if="item.canResume" style="cursor: pointer;"></b-icon-arrow-clockwise>
             </td>
           </tr>
           <tr>
             <td>
-              <b-icon-x-circle :title="i18n('delete')" style="color: red;" @click="deleteRecord"></b-icon-x-circle>
+              <b-icon-x-circle :title="i18n('delete')" style="color: red; cursor: pointer;" @click="deleteRecord"></b-icon-x-circle>
+            </td>
+            <td>
+              <b-icon-x-octagon-fill :title="i18n('deleteFile')" style="cursor: pointer;" @click="deleteFile"></b-icon-x-octagon-fill>
             </td>
           </tr>
         </table>
       </transition>
     </div>
 
-    <div class="item-detail" v-if="isShowDetail">
+    <div class="item-detail" v-if="isShowDetail" v-on:dblclick="itemDetailCopy" :title="i18n('doubleClickCopy')">
       <div class="item-detail-item">
-        Path: {{ item.filename }}
+        <span class="item-detail-item-key">Id:</span> <span class="item-detail-item-content"> {{ item.id }} </span>
       </div>
       <div class="item-detail-item">
-        URL: {{ item.url }}
+        <span class="item-detail-item-key">Filename:</span> <span class="item-detail-item-content"> {{ item.filename | shortName}} </span>
       </div>
       <div class="item-detail-item">
-        Final URL: {{ item.finalUrl}}
+        <span class="item-detail-item-key">Path:</span> <span class="item-detail-item-content"> {{ item.filename }} </span>
       </div>
       <div class="item-detail-item">
-        Referrer: {{ item.referrer }}
+        <span class="item-detail-item-key">MIME:</span> <span class="item-detail-item-content"> {{ item.mime }} </span>
       </div>
       <div class="item-detail-item">
-        MIME: {{ item.mime }}
+        <span class="item-detail-item-key">Referrer:</span> <span class="item-detail-item-content"> {{ item.referrer }} </span>
       </div>
       <div class="item-detail-item">
-        Start time: {{ item.startTime }}
+        <span class="item-detail-item-key">URL:</span> <span class="item-detail-item-content"> {{ item.url }} </span>
       </div>
       <div class="item-detail-item">
-        End time: {{ item.endTime }}
-      </div>
-      <div class="item-detail-item" style="color: red;">
-        State: {{ item.state }}
+        <span class="item-detail-item-key">Final URL:</span> <span class="item-detail-item-content"> {{ item.finalUrl}} </span>
       </div>
       <div class="item-detail-item">
-        incognito: {{ item.incognito }}
+        <span class="item-detail-item-key">Start time: </span> <span class="item-detail-item-content"> {{ item.startTime | dateTimeFormat}} </span>
       </div>
       <div class="item-detail-item">
-        paused: {{ item.paused }}
+        <span class="item-detail-item-key">End time:</span> <span class="item-detail-item-content"> {{ item.endTime | dateTimeFormat}} </span>
       </div>
       <div class="item-detail-item">
-        Can Resume: {{ item.canResume }}
+        <span class="item-detail-item-key">Estimated end time:</span> <span class="item-detail-item-content"> {{ item.estimatedEndTime | dateTimeFormat}} </span>
       </div>
       <div class="item-detail-item">
-        Error: {{ item.error }}
+        <span class="item-detail-item-key">State:</span> <span class="item-detail-item-content"> {{ item.state }} </span>
       </div>
       <div class="item-detail-item">
-        bytesReceived: {{ item.bytesReceived }}
+        <span class="item-detail-item-key">Paused:</span> <span class="item-detail-item-content"> {{ item.paused }} </span>
       </div>
       <div class="item-detail-item">
-        totalBytes: {{ item.totalBytes | sizeFormat}}
+        <span class="item-detail-item-key">Can resume:</span> <span class="item-detail-item-content"> {{ item.canResume }} </span>
       </div>
       <div class="item-detail-item">
-        exists: {{ item.exists }}
+        <span class="item-detail-item-key">Interrupt reason:</span> <span class="item-detail-item-content"> {{ item.error }} </span>
       </div>
       <div class="item-detail-item">
-        danger: {{ item.danger }}
+        <span class="item-detail-item-key">Exists:</span> <span class="item-detail-item-content"> {{ item.exists }} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">Danger type:</span> <span class="item-detail-item-content"> {{ item.danger }} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">Incognito:</span> <span class="item-detail-item-content"> {{ item.incognito }} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">Bytes received:</span> <span class="item-detail-item-content"> {{ item.bytesReceived | sizeFormat }} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">Total bytes:</span> <span class="item-detail-item-content"> {{ item.totalBytes | sizeFormat}} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">File size:</span> <span class="item-detail-item-content"> {{ item.fileSize | sizeFormat}} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">By extension id:</span> <span class="item-detail-item-content"> {{ item.byExtensionId }} </span>
+      </div>
+      <div class="item-detail-item">
+        <span class="item-detail-item-key">By extension name:</span> <span class="item-detail-item-content"> {{ item.byExtensionName }} </span>
       </div>
     </div>
   </div>
@@ -114,8 +145,14 @@
 
 <script lang="ts">
 import DownloadItem = chrome.downloads.DownloadItem;
-import * as dayjs from "dayjs";
 import util from "../scripts/util";
+
+import * as dayjs from "dayjs";
+import * as relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn';
+
+dayjs.extend(relativeTime);
+dayjs.locale(util.dayjsLocale());
 
 export default {
   props: ['value'],
@@ -124,7 +161,9 @@ export default {
       item: <DownloadItem>this.value,
       icon_url: <string>null,
       isShow: false,
-      isShowDetail: false
+      isShowDetail: false,
+      speed: 0,
+      danger_accepted: false
     }
   },
   created() {
@@ -141,6 +180,15 @@ export default {
     if (this.item.state === 'in_progress' && !this.item.paused) {
       this.progress_polling();
     }
+
+    chrome.downloads.onChanged.addListener(downloadDelta => {
+      if (downloadDelta.danger.current == 'accepted') {
+        this.progress_polling();
+      }
+    });
+  },
+  updated() {
+    this.$refs['action-panel'].style.height = window.getComputedStyle(this.$refs['download-item']).height;
   },
   methods: {
     i18n: chrome.i18n.getMessage,
@@ -191,14 +239,24 @@ export default {
         id: this.item.id
       }, (results: DownloadItem[]) => {
         let item = results[0];
+        if (item['bytesReceived']) {
+          this.speed = item['bytesReceived'] - this.item['bytesReceived'];
+        }
+
         for (let k in item) {
           this.item[k] = item[k];
         }
 
         if (this.item.state === 'in_progress' && !this.item.paused) {
-          setTimeout(() => {
-            this.progress_polling();
-          }, 500);
+          if (this.item.bytesReceived == this.item.totalBytes && (this.item.danger != 'safe' || this.item.danger != 'accepted')) {
+            chrome.downloads.acceptDanger(this.item.id, () => {
+              this.progress_polling();
+            });
+          } else {
+            setTimeout(() => {
+              this.progress_polling();
+            }, 1000);
+          }
         }
       });
     },
@@ -208,6 +266,27 @@ export default {
       }, () => {
 
       });
+    },
+    deleteFile() {
+      if (this.fileExists()) {
+        chrome.downloads.removeFile(this.item.id, () => {
+          chrome.downloads.erase({
+            id: this.item.id
+          }, () => {
+          });
+        });
+      } else {
+        chrome.downloads.erase({
+          id: this.item.id
+        }, () => {
+        });
+      }
+    },
+    itemDetailCopy(event: Event) {
+      let ele = <HTMLElement>event.target;
+      if (ele.className == 'item-detail-item-content') {
+        util.copyTextInNodeToClipboard(ele);
+      }
     },
     fileExists() {
       return (this.item.state == 'complete' && this.item.exists && this.item.filename);
@@ -225,7 +304,16 @@ export default {
   },
   filters: {
     dateFormat(date: string) {
-      return dayjs(date).format('YYYY-MM-DD');
+      if (date) {
+        return dayjs(date).format('YYYY-MM-DD');
+      }
+      return null;
+    },
+    dateTimeFormat(date: string) {
+      if (date) {
+        return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+      }
+      return null;
     },
     shortName(filename: string) {
       if (!filename) {
@@ -252,6 +340,19 @@ export default {
       }
       // B
       return fileSize.toFixed(1) + ' B';
+    },
+    timeLeft(estimatedEndTimeStr: string) {
+      if (!estimatedEndTimeStr) {
+        return null;
+      }
+
+      let curTime = dayjs();
+      let estimatedEndTime = dayjs(estimatedEndTimeStr);
+      if (estimatedEndTime.isAfter(curTime)) {
+        return estimatedEndTime.from(curTime);
+      }
+
+      return null;
     }
   }
 }
@@ -300,18 +401,21 @@ export default {
 .action-panel {
   height: 100px;
   width: 100px;
-  background-color: rgba(200,200,200,0.5);
+  background-color: rgba(200,200,200,0.8);
   position: absolute;
   right: 15px;
 }
 .item-detail {
   width: 100%;
-  border: blue 1px solid;
+  border: darkgrey 1px solid;
 }
 .item-detail-item {
   border-bottom: lightgray 1px solid;
   width: 400px;
   word-break: break-all;
+}
+.item-detail-item-key {
+  font-weight: bold;
 }
 .file-not-exists {
   color: red;
@@ -331,8 +435,17 @@ export default {
 }
 .progress-status{
   display: flex;
-  justify-content: space-between;
   padding-top: 5px;
+}
+.progress-status .progress {
+  border: 1px solid white;
+}
+.download-speed {
+  display: inline-block;
+  font-size: 0.75rem;
+  height: 1rem;
+  line-height: 1rem;
+  margin-left: 5px;
 }
 
 /* transition */

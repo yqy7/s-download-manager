@@ -35,6 +35,14 @@
     "message": "Delete",
     "description": ""
   },
+  "deleteAll": {
+    "message": "Delete all",
+    "description": ""
+  },
+  "deleteFile": {
+    "message": "Delete file",
+    "description": ""
+  },
   "deleted": {
     "message": "Deleted",
     "description": ""
@@ -61,6 +69,10 @@
   },
   "searchPlaceholder": {
     "message": "Search...",
+    "description": ""
+  },
+  "doubleClickCopy": {
+    "message": "Double click to copy",
     "description": ""
   }
 }

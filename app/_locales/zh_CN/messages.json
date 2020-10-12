@@ -35,6 +35,14 @@
     "message": "删除",
     "description": ""
   },
+  "deleteAll": {
+    "message": "删除所有",
+    "description": ""
+  },
+  "deleteFile": {
+    "message": "删除文件",
+    "description": ""
+  },
   "deleted": {
     "message": "已删除",
     "description": ""
@@ -61,6 +69,10 @@
   },
   "searchPlaceholder": {
     "message": "搜索...",
+    "description": ""
+  },
+  "doubleClickCopy": {
+    "message": "双击拷贝",
     "description": ""
   }
 }

@@ -1,11 +1,13 @@
 <template>
-  <div class="header">
+  <div class="header container">
     <div class="header-bar">
       <label for="search-box">
         <b-icon-search></b-icon-search>
       </label>
-      <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box" v-model.lazy="value"
-                    v-on:change="$emit('input', value)"></b-form-input>
+      <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box"
+                    :value="value"
+                    @input="searchText = $event"
+                    @change="$emit('input', searchText)"></b-form-input>
 
       <b-icon-folder2-open :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
       <b-icon-gear :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
@@ -17,6 +19,11 @@
 <script lang="ts">
 export default {
   props: ['value'],
+  data() {
+    return {
+      searchText: this.value
+    }
+  },
   methods: {
     i18n: chrome.i18n.getMessage,
     openDownloadFolder() {
@@ -41,16 +48,18 @@ export default {
 <style scoped>
 .header {
   position: fixed;
-  width: 400px;
+  /*width: 410px;*/
+  width: 100%;
   height: 50px;
   background-color: white;
+  z-index: 1;
+  border-bottom: 1px solid lightgray;
 }
 .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 5px auto;
-  border-bottom: 1px solid lightgray;
 }
 .search-box {
   width: 80%;

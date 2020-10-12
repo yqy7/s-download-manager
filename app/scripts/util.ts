@@ -1,11 +1,5 @@
 
 export default {
-  remove(arr: any[], obj: any) {
-    let index = arr.findIndex(it => it === obj)
-    if (index > -1) {
-      arr.splice(index, 1)
-    }
-  },
   copyToClipboard(text: string) {
     const textarea = document.createElement('textarea');
     document.body.appendChild(textarea);
@@ -14,8 +8,23 @@ export default {
     if (document.execCommand('copy')) {
       document.execCommand('copy');
     } else {
-      console.log('复制失败');
+      console.log('Copy to clipboard error!');
     }
     document.body.removeChild(textarea);
+  },
+  copyTextInNodeToClipboard(node: HTMLElement) {
+    let selection = window.getSelection();
+    let range = document.createRange();
+    range.selectNodeContents(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
+  },
+  dayjsLocale() {
+    const dayjsLocaleMap = {
+      'zh-CN': 'zh-cn'
+    };
+    let locale = chrome.i18n.getUILanguage();
+    return dayjsLocaleMap[locale] ? dayjsLocaleMap[locale] : locale;
   }
 }
