@@ -2,24 +2,24 @@
   <div>
     <div ref="download-item" class="download-item" v-on:mouseover="showActionPanel" v-on:mouseout="hideActionPanel">
       <div>
-        <img v-bind:src="icon_url" class="item-img"/>
+        <img :src="icon_url" class="item-img"/>
       </div>
 
       <div class="item-info">
-        <div class="item-filename">
+        <div>
           <span :title="item.filename"
-                :class="{
+                :class="['item-filename', {
                'file-not-exists': !fileExists() && item.state !== 'in_progress',
                'file-in-progress': item.state === 'in_progress',
-               'file-interrupted': item.state === 'interrupted'}"
+               'file-interrupted': item.state === 'interrupted'}]"
                 @click="openFile">
             {{ item.filename | shortName }}
           </span>
           <span class="error-msg" v-if="hasError()">{{ errorMessage() }}</span>
         </div>
 
-        <div class="item-url" :title="item.finalUrl" @click="openUrl(item.finalUrl)">
-          {{ item.finalUrl }}
+        <div>
+          <span class="item-url" :title="item.finalUrl" @click="openUrl(item.finalUrl)">{{ item.finalUrl }}</span>
         </div>
 
         <div v-if="item.state === 'in_progress'" class="progress-status">
@@ -29,7 +29,7 @@
           <b-progress :value="item.bytesReceived" :max="item.totalBytes" variant="success" show-progress style="width: 150px"></b-progress>
           <div class="download-speed" v-if="!item.paused">
             <span>
-              {{ speed | sizeFormat}}/s
+              {{ speed | sizeFormat }}/s
             </span>
             <span style="border-left: solid 1px darkgrey; margin-left: 5px; padding-left: 5px">
             {{ item.estimatedEndTime | timeLeft }}
@@ -38,7 +38,7 @@
         </div>
 
         <div class="item-status-line">
-          <span>{{ item.bytesReceived | sizeFormat}}/{{ item.totalBytes | sizeFormat}}</span>
+          <span>{{ item.bytesReceived | sizeFormat }}/{{ item.totalBytes | sizeFormat}}</span>
           <span>{{ item.startTime | dateFormat }}</span>
         </div>
       </div>
@@ -146,213 +146,25 @@
 <script lang="ts">
 import DownloadItem = chrome.downloads.DownloadItem;
 import util from "../scripts/util";
-
-import * as dayjs from "dayjs";
-import * as relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/zh-cn';
-
-dayjs.extend(relativeTime);
-dayjs.locale(util.dayjsLocale());
+import mixin from '../scripts/downloadItemShare';
 
 export default {
-  props: ['value'],
+  mixins: [mixin],
   data(){
     return  {
-      item: <DownloadItem>this.value,
-      icon_url: <string>null,
       isShow: false,
       isShowDetail: false,
-      speed: 0,
-      danger_accepted: false
     }
-  },
-  created() {
-    if (this.item.filename) {
-      chrome.downloads.getFileIcon(
-          this.item.id,
-          {'size': 32},
-          (icon_url) => {
-            if (icon_url) {
-              this.icon_url = icon_url;
-            }
-          });
-    }
-    if (this.item.state === 'in_progress' && !this.item.paused) {
-      this.progress_polling();
-    }
-
-    chrome.downloads.onChanged.addListener(downloadDelta => {
-      if (downloadDelta.danger && downloadDelta.danger.current == 'accepted') {
-        this.progress_polling();
-      }
-    });
   },
   updated() {
     this.$refs['action-panel'].style.height = window.getComputedStyle(this.$refs['download-item']).height;
   },
   methods: {
-    i18n: chrome.i18n.getMessage,
     showActionPanel() {
       this.isShow = true;
     },
     hideActionPanel() {
       this.isShow = false;
-    },
-    openFile() {
-      let item = this.item;
-      if (item.exists && item.filename && item.state == 'complete') {
-        chrome.downloads.open(item.id);
-      }
-    },
-    showInFolder() {
-      let item = this.item;
-      if (item.exists && item.filename && item.state == 'complete') {
-        chrome.downloads.show(item.id);
-      }
-    },
-    openUrl(url: string) {
-      chrome.tabs.create({ url });
-    },
-    copyLink() {
-      util.copyToClipboard(this.item.finalUrl);
-    },
-    pause(){
-      chrome.downloads.pause(this.item.id, () => {
-        this.progress_polling();
-      });
-    },
-    resume() {
-      chrome.downloads.resume(this.item.id, () => {
-        this.progress_polling();
-      });
-    },
-    retry() {
-      this.resume();
-    },
-    cancel() {
-      chrome.downloads.cancel(this.item.id, () => {
-        this.progress_polling();
-      });
-    },
-    progress_polling() {
-      chrome.downloads.search({
-        id: this.item.id
-      }, (results: DownloadItem[]) => {
-        let item = results[0];
-        if (item['bytesReceived']) {
-          this.speed = item['bytesReceived'] - this.item['bytesReceived'];
-        }
-
-        for (let k in item) {
-          this.item[k] = item[k];
-        }
-
-        if (this.item.state === 'in_progress' && !this.item.paused) {
-          if (this.item.bytesReceived == this.item.totalBytes && (this.item.danger != 'safe' || this.item.danger != 'accepted')) {
-            chrome.downloads.acceptDanger(this.item.id, () => {
-              this.progress_polling();
-            });
-          } else {
-            setTimeout(() => {
-              this.progress_polling();
-            }, 1000);
-          }
-        }
-      });
-    },
-    deleteRecord() {
-      chrome.downloads.erase({
-        id: this.item.id
-      }, () => {
-
-      });
-    },
-    deleteFile() {
-      if (this.fileExists()) {
-        chrome.downloads.removeFile(this.item.id, () => {
-          chrome.downloads.erase({
-            id: this.item.id
-          }, () => {
-          });
-        });
-      } else {
-        chrome.downloads.erase({
-          id: this.item.id
-        }, () => {
-        });
-      }
-    },
-    itemDetailCopy(event: Event) {
-      let ele = <HTMLElement>event.target;
-      if (ele.className == 'item-detail-item-content') {
-        util.copyTextInNodeToClipboard(ele);
-      }
-    },
-    fileExists() {
-      return (this.item.state == 'complete' && this.item.exists && this.item.filename);
-    },
-    hasError() {
-      return this.item.state == 'interrupted' || (!this.fileExists() && this.item.state != 'in_progress');
-    },
-    errorMessage() {
-      if (this.item.error) {
-        return this.item.error;
-      } else {
-        return this.i18n('deleted');
-      }
-    }
-  },
-  filters: {
-    dateFormat(date: string) {
-      if (date) {
-        return dayjs(date).format('YYYY-MM-DD');
-      }
-      return null;
-    },
-    dateTimeFormat(date: string) {
-      if (date) {
-        return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
-      }
-      return null;
-    },
-    shortName(filename: string) {
-      if (!filename) {
-        return 'undefined';
-      }
-      let lastIndex = filename.lastIndexOf('/');
-      return lastIndex >= 0 && lastIndex < filename.length - 1 ? filename.substring(lastIndex + 1, filename.length) : filename;
-    },
-    sizeFormat(fileSize: number) {
-      // GB
-      let GB = 1024 * 1024 * 1024;
-      if (fileSize >= GB) {
-        return (fileSize / GB).toFixed(1) + ' GB';
-      }
-      // MB
-      let MB = 1024 * 1024;
-      if (fileSize >= MB) {
-        return (fileSize / MB).toFixed(1) + ' MB';
-      }
-      // KB
-      let KB = 1024;
-      if (fileSize > KB) {
-        return (fileSize / KB).toFixed(1) + ' KB';
-      }
-      // B
-      return fileSize.toFixed(1) + ' B';
-    },
-    timeLeft(estimatedEndTimeStr: string) {
-      if (!estimatedEndTimeStr) {
-        return null;
-      }
-
-      let curTime = dayjs();
-      let estimatedEndTime = dayjs(estimatedEndTimeStr);
-      if (estimatedEndTime.isAfter(curTime)) {
-        return estimatedEndTime.from(curTime);
-      }
-
-      return null;
     }
   }
 }
@@ -363,9 +175,10 @@ export default {
   padding: 5px;
   display: flex;
   align-items: center;
-  width: 400px;
+  width: 100%;
   overflow: hidden;
   border-bottom: 1px solid lightgray;
+  position: relative;
 }
 .download-item:hover {
   box-shadow: 2px 2px 2px lightgray;
@@ -399,11 +212,11 @@ export default {
   margin: 5px 0;
 }
 .action-panel {
-  height: 100px;
+  height: 100%;
   width: 100px;
   background-color: rgba(200,200,200,0.8);
   position: absolute;
-  right: 15px;
+  right: 0;
 }
 .item-detail {
   width: 100%;
@@ -411,7 +224,7 @@ export default {
 }
 .item-detail-item {
   border-bottom: lightgray 1px solid;
-  width: 400px;
+  width: 100%;
   word-break: break-all;
 }
 .item-detail-item-key {
@@ -433,7 +246,7 @@ export default {
   color: red;
   margin-left: 5px;
 }
-.progress-status{
+.progress-status {
   display: flex;
   padding-top: 5px;
 }

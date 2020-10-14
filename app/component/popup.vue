@@ -3,25 +3,22 @@
   <popup-header v-model="searchText"></popup-header>
 
   <div id="download-items" class="container">
-
     <ul class="item-list">
-      <li v-for="item in items" :key="item.id">
-        <download-item v-bind:value="item"></download-item>
+      <li v-for="item in items" :key="item.id" class="list-item">
+        <download-item :value="item"></download-item>
       </li>
     </ul>
-
   </div>
-  <popup-footer @pre-page="prePage" @next-page="nextPage" @delete-all="deleteAll"></popup-footer>
 
+  <popup-footer @pre-page="prePage" @next-page="nextPage" @delete-all="deleteAll"></popup-footer>
 </div>
 </template>
 
 <script lang="ts">
-
 import DownloadItem = chrome.downloads.DownloadItem;
-import downloadItemView from "./downloadItemView.vue";
-import popupHeaderView from "./popupHeaderView.vue";
-import popupFooterView from "./popupFooterView.vue";
+import downloadItemView from "./popupDownloadItem.vue";
+import popupHeaderView from "./popupHeader.vue";
+import popupFooterView from "./popupFooter.vue";
 
 let startTimes: number[] = [];
 export default {
@@ -126,5 +123,8 @@ ul {
   padding: 50px 0;
   margin-bottom: 0;
   min-width: 400px;
+}
+.list-item {
+  width: 400px;
 }
 </style>

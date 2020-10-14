@@ -1,17 +1,21 @@
 <template>
   <div class="header container">
     <div class="header-bar">
-      <label for="search-box">
-        <b-icon-search></b-icon-search>
-      </label>
-      <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box"
-                    :value="value"
-                    @input="searchText = $event"
-                    @change="$emit('input', searchText)"></b-form-input>
+      <b-form-group label-cols="1" class="search-box-form-group">
+        <template v-slot:label>
+          <b-icon-search></b-icon-search>
+        </template>
+        <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box"
+                      :value="value"
+                      @input="searchText = $event"
+                      @change="$emit('input', searchText)"></b-form-input>
+      </b-form-group>
 
-      <b-icon-folder2-open :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
-      <b-icon-gear :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
-      <b-icon-download :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
+      <b-form-group>
+        <b-icon-folder2-open :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
+        <b-icon-gear :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
+        <b-icon-download :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
+      </b-form-group>
     </div>
   </div>
 </template>
@@ -25,7 +29,6 @@ export default {
     }
   },
   methods: {
-    i18n: chrome.i18n.getMessage,
     openDownloadFolder() {
       chrome.downloads.showDefaultFolder();
     },
@@ -62,8 +65,11 @@ export default {
   margin: 5px auto;
 }
 .search-box {
-  width: 80%;
   border: 0;
+}
+.search-box-form-group {
+  flex: 1;
+  margin-right: 1rem;
 }
 .search-box:focus {
   box-shadow: none;
