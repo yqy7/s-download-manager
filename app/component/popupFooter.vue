@@ -10,16 +10,16 @@
         <b-icon-trash id="delete-btn" style="cursor: pointer"></b-icon-trash>
         <b-popover target="delete-btn" triggers="hover" placement="top" id="delete-popover">
           <div>
-            <b-button @click="$emit('delete-finished')" variant="light">{{ i18n('deleteFinishedTask') }}</b-button>
+            <b-button @click="$emit('delete-finished')" squared variant="outline-danger">{{ i18n('deleteFinishedTask') }}</b-button>
           </div>
           <div>
-            <b-button @click="$emit('delete-file-missing')" variant="light">{{ i18n('deleteFileMissingTask') }}</b-button>
+            <b-button @click="$emit('delete-file-missing')" squared variant="outline-danger">{{ i18n('deleteFileMissingTask') }}</b-button>
           </div>
           <div>
-            <b-button @click="$emit('delete-failed')" variant="light">{{ i18n('deleteFailedTask') }}</b-button>
+            <b-button @click="$emit('delete-failed')" squared variant="outline-danger">{{ i18n('deleteFailedTask') }}</b-button>
           </div>
           <div>
-            <b-button @click="$emit('delete-all')" variant="light">{{ i18n('deleteAll') }}</b-button>
+            <b-button @click="$emit('delete-all')" squared variant="outline-danger">{{ i18n('deleteAll') }}</b-button>
           </div>
         </b-popover>
       </div>
@@ -55,7 +55,13 @@ export default {
   height: 50px;
   line-height: 50px;
 }
+</style>
+<style>
 #delete-popover .popover-body button {
   width: 100%;
+  border: 0;
+}
+#delete-popover .popover-body {
+  padding: 0;
 }
 </style>
