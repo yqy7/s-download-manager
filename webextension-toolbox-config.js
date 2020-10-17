@@ -33,10 +33,15 @@ module.exports = {
 
     config.entry = GlobEntriesPlugin.getEntries(
       [
-        resolve('app', '*.{js,mjs,jsx,ts,tsx}'),
-        resolve('app', '?(scripts)/*.{js,mjs,jsx,ts,tsx}')
+        // resolve('app', '*.{js,mjs,jsx,ts,tsx}'),
+        // resolve('app', '?(scripts)/*.{js,mjs,jsx,ts,tsx}')
+        resolve('app', '?(scripts)/popup.ts'),
+        resolve('app', '?(scripts)/background.ts'),
+        resolve('app', '?(scripts)/options.ts'),
+        resolve('app', '?(scripts)/contentscript.ts'),
       ]
     )
+    console.log(config.entry());
 
     config.devtool = 'inline-source-map';
 
