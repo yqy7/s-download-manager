@@ -47,6 +47,18 @@
     "message": "已删除",
     "description": ""
   },
+  "deleteFinishedTask": {
+    "message": "删除已完成的",
+    "description": ""
+  },
+  "deleteFileMissingTask": {
+    "message": "删除文件不存在的",
+    "description": ""
+  },
+  "deleteFailedTask": {
+    "message": "删除失败的",
+    "description": ""
+  },
   "previousPage": {
     "message": "上一页",
     "description": ""
@@ -73,6 +85,18 @@
   },
   "doubleClickCopy": {
     "message": "双击拷贝",
+    "description": ""
+  },
+  "sniffer": {
+    "message": "资源嗅探器",
+    "description": ""
+  },
+  "USER_CANCELED": {
+    "message": "已取消",
+    "description": ""
+  },
+  "addTask": {
+    "message": "添加任务",
     "description": ""
   }
 }

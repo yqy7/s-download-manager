@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import Vue, {CreateElement} from 'vue';
 
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue';
 
@@ -19,19 +19,7 @@ Vue.use(BootstrapVueIcons);
 Vue.mixin({
     methods: {
         i18n: chrome.i18n.getMessage,
-        fileType(mime: string) {
-            if (mime.indexOf('image/') > -1) {
-                return 'image';
-            } else if (mime.indexOf('video/') > -1) {
-                return 'video';
-            } else if (mime.indexOf('audio/') > -1) {
-                return 'audio';
-            } else if (mime.indexOf('text/') > -1) {
-                return 'document';
-            } else {
-                return 'other';
-            }
-        }
+        fileResType: util.fileResType
     },
     filters: {
         dateFormat(date: string) {
@@ -53,7 +41,8 @@ Vue.mixin({
             let lastIndex = filename.lastIndexOf('/');
             return lastIndex >= 0 && lastIndex < filename.length - 1 ? filename.substring(lastIndex + 1, filename.length) : filename;
         },
-        sizeFormat(fileSize: number) {
+        sizeFormat(fileSize: any) {
+            fileSize = parseFloat(fileSize);
             // GB
             let GB = 1024 * 1024 * 1024;
             if (fileSize >= GB) {
@@ -88,7 +77,29 @@ Vue.mixin({
     }
 });
 
-function createApp(obj: any) {
+function createApp(obj: any, routes?: any) {
+    if (routes) {
+        obj['mixins'] = [
+            {
+                data: {
+                    currentRoute: '/'
+                },
+                computed: {
+                    ViewComponent() {
+                        return routes[this.currentRoute];
+                    }
+                },
+                methods: {
+                    navTo(path: string) {
+                        this.currentRoute = path;
+                    }
+                },
+                render(h: CreateElement) {
+                    return h(this.ViewComponent);
+                }
+            }
+        ];
+    }
     return new Vue(obj);
 }
 

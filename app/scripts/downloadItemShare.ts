@@ -14,6 +14,20 @@ export default {
     created() {
         this.initDownloadItem();
     },
+    updated() {
+        // 有时候显示不出来
+        if (!this.icon_url && this.item.filename) {
+            chrome.downloads.getFileIcon(
+                this.item.id,
+                {'size': 32},
+                (icon_url) => {
+                    if (icon_url) {
+                        this.icon_url = icon_url;
+                        this.item.icon_url = icon_url;
+                    }
+                });
+        }
+    },
     methods: {
         initDownloadItem() {
             if (this.item.filename) {
@@ -137,7 +151,7 @@ export default {
         },
         errorMessage() {
             if (this.item.error) {
-                return this.item.error;
+                return this.i18n(this.item.error) ? this.i18n(this.item.error) : this.item.error;
             } else {
                 return this.i18n('deleted');
             }

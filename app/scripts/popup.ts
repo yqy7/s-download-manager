@@ -1,10 +1,14 @@
 import createApp from "./app";
-import popupView from '../component/popup.vue';
+import popup from '../component/popup.vue';
+import sniffer from '../component/sniffer.vue';
 
-createApp({
-    el: '#app',
-    components: {
-        'app-root': popupView
-    }
-});
+const routes = {
+    '/': popup,
+    '/sniffer': sniffer
+}
 
+let app = createApp({
+    el: '#app'
+}, routes);
+
+(<any>globalThis).app = app;

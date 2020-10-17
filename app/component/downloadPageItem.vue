@@ -1,7 +1,7 @@
 <template>
   <div ref="download-item" :class="{'download-item': true, 'selected': isSelected}">
     <div class="item-img-wrapper">
-      <img :src="fileType(item.mime) === 'image' ? 'file://' + item.filename : icon_url" class="item-img"/>
+      <img :src="(fileResType(item.mime) === 'image') && fileExists() ? 'file://' + item.filename : icon_url" class="item-img"/>
     </div>
 
     <div class="item-info">

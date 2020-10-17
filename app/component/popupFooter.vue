@@ -2,12 +2,26 @@
   <div class="footer container">
     <div class="footer-bar">
       <div class="page-action">
-        <b-icon-chevron-left :title="i18n('previousPage')" @click="$emit('pre-page')"></b-icon-chevron-left>
-        <b-icon-chevron-right :title="i18n('nextPage')" @click="$emit('next-page')"></b-icon-chevron-right>
+        <b-icon-chevron-left style="cursor: pointer" :title="i18n('previousPage')" @click="$emit('pre-page')"></b-icon-chevron-left>
+        <b-icon-chevron-right style="cursor: pointer" :title="i18n('nextPage')" @click="$emit('next-page')"></b-icon-chevron-right>
       </div>
 
       <div class="actions">
-        <b-icon-trash :title="i18n('deleteAll')" @click="$emit('delete-all')"></b-icon-trash>
+        <b-icon-trash id="delete-btn" style="cursor: pointer"></b-icon-trash>
+        <b-popover target="delete-btn" triggers="hover" placement="top" id="delete-popover">
+          <div>
+            <b-button @click="$emit('delete-finished')" variant="light">{{ i18n('deleteFinishedTask') }}</b-button>
+          </div>
+          <div>
+            <b-button @click="$emit('delete-file-missing')" variant="light">{{ i18n('deleteFileMissingTask') }}</b-button>
+          </div>
+          <div>
+            <b-button @click="$emit('delete-failed')" variant="light">{{ i18n('deleteFailedTask') }}</b-button>
+          </div>
+          <div>
+            <b-button @click="$emit('delete-all')" variant="light">{{ i18n('deleteAll') }}</b-button>
+          </div>
+        </b-popover>
       </div>
     </div>
   </div>
@@ -40,5 +54,8 @@ export default {
 .actions {
   height: 50px;
   line-height: 50px;
+}
+#delete-popover .popover-body button {
+  width: 100%;
 }
 </style>

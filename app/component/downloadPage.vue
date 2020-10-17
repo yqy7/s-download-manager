@@ -52,7 +52,7 @@
       <div class="resize-bar" @mousedown="startResizeSidebar"></div>
       <div class="item-detail container" :title="i18n('doubleClickCopy')">
         <div class="item-img-wrapper">
-          <img :src="fileType(itemSelected.mime) === 'image' ? 'file://' + itemSelected.filename : itemSelected.icon_url" class="item-img"/>
+          <img :src="(fileResType(itemSelected.mime) === 'image' && (this.itemSelected.state == 'complete' && this.itemSelected.exists && this.itemSelected.filename)) ? 'file://' + itemSelected.filename : itemSelected.icon_url" class="item-img"/>
         </div>
 
         <div class="item-detail-item">

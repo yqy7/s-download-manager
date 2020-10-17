@@ -12,11 +12,21 @@
       </b-form-group>
 
       <b-form-group>
-        <b-icon-folder2-open :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
-        <b-icon-gear :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
-        <b-icon-download :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
+        <b-icon-plus-square style="cursor: pointer" :title="i18n('addTask')" v-b-modal.modal-add-task></b-icon-plus-square>
+        <b-icon-folder2-open style="cursor: pointer" :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
+        <b-icon-gear style="cursor: pointer" :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
+        <b-icon-download style="cursor: pointer" :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
+        <b-icon-bullseye style="cursor: pointer" :title="i18n('sniffer')" @click="openSniffer"></b-icon-bullseye>
       </b-form-group>
     </div>
+    <b-modal id="modal-add-task" :title="i18n('addTask')" @ok="addTask">
+      <b-form-group label-cols="2" label-for="downloadUrl" label="URL">
+        <b-form-input placeholder="URL" id="downloadUrl" v-model="downloadUrl"></b-form-input>
+      </b-form-group>
+      <b-form-group label-cols="2" label-for="downloadFileName" label="Name">
+        <b-form-input placeholder="File name(Optional)" v-model="downloadFilename"></b-form-input>
+      </b-form-group>
+    </b-modal>
   </div>
 </template>
 
@@ -25,7 +35,9 @@ export default {
   props: ['value'],
   data() {
     return {
-      searchText: this.value
+      searchText: this.value,
+      downloadUrl: <string>null,
+      downloadFilename: <string>null
     }
   },
   methods: {
@@ -39,10 +51,25 @@ export default {
       });
     },
     openDownloadPage() {
-      let a = chrome.extension.getURL("pages/downloads.html");
+      // let a = chrome.extension.getURL("pages/downloads.html");
+      let a = 'chrome://downloads/';
       chrome.tabs.query({ url: a }, function(b) {
         b.length ? chrome.tabs.update(b[0].id, {active: !0}) : chrome.tabs.create({ url: a});
       });
+    },
+    openSniffer() {
+      (<any>globalThis).app.navTo('/sniffer');
+    },
+    addTask() {
+      if (this.downloadUrl) {
+        let option = {
+          url: this.downloadUrl
+        };
+        if (this.downloadFilename) {
+          option['filename'] = this.downloadFilename;
+        }
+        chrome.downloads.download(option);
+      }
     }
   }
 }

@@ -47,6 +47,18 @@
     "message": "Deleted",
     "description": ""
   },
+  "deleteFinishedTask": {
+    "message": "Delete finished",
+    "description": ""
+  },
+  "deleteFileMissingTask": {
+    "message": "Delete file missing",
+    "description": ""
+  },
+  "deleteFailedTask": {
+    "message": "Delete failed",
+    "description": ""
+  },
   "previousPage": {
     "message": "Previous page",
     "description": ""
@@ -73,6 +85,18 @@
   },
   "doubleClickCopy": {
     "message": "Double click to copy",
+    "description": ""
+  },
+  "sniffer": {
+    "message": "Sniffer",
+    "description": ""
+  },
+  "USER_CANCELED": {
+    "message": "Canceled",
+    "description": ""
+  },
+  "addTask": {
+    "message": "Add task",
     "description": ""
   }
 }

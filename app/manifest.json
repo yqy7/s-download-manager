@@ -31,8 +31,11 @@
   "permissions": [
     "downloads",
     "downloads.open",
+    "downloads.shelf",
     "tabs",
     "activeTab",
+    "webRequest",
+    "storage",
     "<all_urls>"
   ]
 }

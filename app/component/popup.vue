@@ -10,7 +10,13 @@
     </ul>
   </div>
 
-  <popup-footer @pre-page="prePage" @next-page="nextPage" @delete-all="deleteAll"></popup-footer>
+  <popup-footer @pre-page="prePage" @next-page="nextPage"
+                @delete-all="deleteAll"
+                @delete-finished="deleteFinished"
+                @delete-file-missing="deleteFileMissing"
+                @delete-failed="deleteFailed"
+                @refresh="search">
+  </popup-footer>
 </div>
 </template>
 
@@ -42,6 +48,9 @@ export default {
         this.items.splice(index, 1);
       }
     });
+    chrome.downloads.onCreated.addListener(downloadItem => {
+      this.search();
+    });
   },
   watch: {
     searchText() {
@@ -62,6 +71,30 @@ export default {
     deleteAll() {
       chrome.downloads.erase({
         query: [this.searchText]
+      }, erasedIds => {
+        this.searchText = '';
+        this.search();
+      });
+    },
+    deleteFinished() {
+      chrome.downloads.erase({
+        state: 'complete'
+      }, erasedIds => {
+        this.searchText = '';
+        this.search();
+      });
+    },
+    deleteFileMissing() {
+      chrome.downloads.erase({
+        exists: false
+      }, erasedIds => {
+        this.searchText = '';
+        this.search();
+      });
+    },
+    deleteFailed() {
+      chrome.downloads.erase({
+        state: 'interrupted'
       }, erasedIds => {
         this.searchText = '';
         this.search();
@@ -123,6 +156,7 @@ ul {
   padding: 50px 0;
   margin-bottom: 0;
   min-width: 400px;
+  min-height: 600px;
 }
 .list-item {
   width: 400px;
