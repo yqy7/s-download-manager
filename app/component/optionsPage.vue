@@ -26,7 +26,7 @@ export default {
   },
   created() {
     chrome.storage.local.get('shelfEnabled', (result) => {
-      this.enableShelf = result;
+      this.enableShelf = result['shelfEnabled'];
     });
   },
   methods: {
