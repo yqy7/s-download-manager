@@ -1,7 +1,15 @@
 import WebResponseHeadersDetails = chrome.webRequest.WebResponseHeadersDetails;
-import util from "./util";
-import {FileInfo} from "../../sdm";
 import TabRemoveInfo = chrome.tabs.TabRemoveInfo;
+import {fileResType} from "./util";
+
+interface FileInfo {
+  name?: string;
+  url: string;
+  type?: string;
+  size?: number;
+  desc?: string;
+  isSelected: boolean
+}
 
 chrome.runtime.onInstalled.addListener((details) => {
   // 关闭Shelf
@@ -9,7 +17,6 @@ chrome.runtime.onInstalled.addListener((details) => {
   chrome.storage.local.set({shelfEnabled: false});
 });
 
-// @ts-ignore
 function changeBadgeText() {
   chrome.downloads.search({state: 'in_progress'}, function (results) {
     let badgeText = results.length > 0 ? results.length.toString() : '';
@@ -114,7 +121,7 @@ chrome.webRequest.onHeadersReceived.addListener((details: WebResponseHeadersDeta
   if (!mime) {
     return;
   }
-  let resType = util.fileResType(mime);
+  let resType = fileResType(mime);
   let infos = tabData[resType];
   if (!infos) {
     infos = [];

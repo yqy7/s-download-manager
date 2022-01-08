@@ -52,7 +52,7 @@
       <div class="resize-bar" @mousedown="startResizeSidebar"></div>
       <div class="item-detail container" :title="i18n('doubleClickCopy')">
         <div class="item-img-wrapper">
-          <img :src="(fileResType(itemSelected.mime) === 'image' && (this.itemSelected.state == 'complete' && this.itemSelected.exists && this.itemSelected.filename)) ? 'file://' + itemSelected.filename : itemSelected.icon_url" class="item-img"/>
+          <img :src="(fileResType(itemSelected.mime) === 'image' && (itemSelected.state == 'complete' && itemSelected.exists && itemSelected.filename)) ? 'file://' + itemSelected.filename : itemSelected.icon_url" class="item-img"/>
         </div>
 
         <div class="item-detail-item">
@@ -128,6 +128,7 @@
 
 <script lang="ts">
 import DownloadItem = chrome.downloads.DownloadItem;
+import {defineComponent, reactive, toRefs} from "vue";
 import downloadPageItem from "./downloadPageItem.vue";
 class ResizeObj {
   mouseDownX: number;
@@ -135,76 +136,78 @@ class ResizeObj {
   maxWidth: number;
   minWidth: number;
 }
-export default {
-  data() {
-    return {
+export default defineComponent({
+  components: {
+    downloadPageItem
+  },
+  setup() {
+    const data = reactive({
       searchText: '',
       stateSelected: ['downloading', 'finished', 'interrupted'],
       fileTypeSelected: ['audio', 'video', 'image', 'document', 'other'],
       items: <DownloadItem[]>null,
       itemSelected: <DownloadItem>null,
       sidebarResizing: <ResizeObj>null
-    }
-  },
-  methods: {
-    search() {
+    })
+
+    function search() {
       chrome.downloads.search({
         orderBy:['-startTime'],
         limit: 100,
-        query: [this.searchText]
+        query: [data.searchText]
       }, (items) => {
-        this.items = items;
+        data.items = items;
       });
-    },
-    selectItem(item: DownloadItem) {
+    }
+    function selectItem(item: DownloadItem) {
       item['isSelected'] = !item['isSelected'];
       if (item['isSelected']) {
-        this.items.forEach((it: DownloadItem) => {
+        data.items.forEach((it: DownloadItem) => {
           if (it !== item) {
             it['isSelected'] = false;
           }
         });
-        this.itemSelected = item;
+        data.itemSelected = item;
       } else {
-        this.itemSelected = null;
+        data.itemSelected = null;
       }
 
       this.$forceUpdate();
-    },
-    startResizeSidebar(event: MouseEvent) {
-      this.sidebarResizing = {
+    }
+    function startResizeSidebar(event: MouseEvent) {
+      data.sidebarResizing = {
         mouseDownX: event.clientX,
         width: parseFloat(window.getComputedStyle(this.$refs['sidebar']).width),
         maxWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).maxWidth),
         minWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).minWidth)
       };
       document.body.style.userSelect = 'none';
-    },
-    resizeSidebar(event: MouseEvent) {
-      if (this.sidebarResizing) {
+    }
+    function resizeSidebar(event: MouseEvent) {
+      if (data.sidebarResizing) {
         let w;
-        if (event.clientX > this.sidebarResizing.mouseDownX) {
-           w = this.sidebarResizing.width - (event.clientX - this.sidebarResizing.mouseDownX);
+        if (event.clientX > data.sidebarResizing.mouseDownX) {
+          w = data.sidebarResizing.width - (event.clientX - data.sidebarResizing.mouseDownX);
         } else {
-          w = this.sidebarResizing.width + (this.sidebarResizing.mouseDownX - event.clientX);
+          w = data.sidebarResizing.width + (data.sidebarResizing.mouseDownX - event.clientX);
         }
-        if (!(this.sidebarResizing.maxWidth && w > this.sidebarResizing.maxWidth) || !(this.sidebarResizing.minWidth && w < this.sidebarResizing.minWidth)) {
+        if (!(data.sidebarResizing.maxWidth && w > data.sidebarResizing.maxWidth) || !(data.sidebarResizing.minWidth && w < data.sidebarResizing.minWidth)) {
           this.$refs['sidebar'].style.width = w + 'px';
         }
       }
-    },
-    stopResizeSidebar() {
-      this.sidebarResizing = null;
+    }
+    function stopResizeSidebar() {
+      data.sidebarResizing = null;
       document.body.style.userSelect = '';
     }
-  },
-  components: {
-    downloadPageItem
-  },
-  created() {
-    this.search();
+
+    search()
+    return {
+      ...toRefs(data),
+      search, selectItem, startResizeSidebar, resizeSidebar, stopResizeSidebar
+    }
   }
-}
+})
 </script>
 
 <style scoped>

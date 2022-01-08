@@ -1,104 +1,112 @@
 <template>
-  <div class="header container">
-    <div class="header-bar">
-      <b-form-group label-cols="1" class="search-box-form-group">
-        <template v-slot:label>
-          <b-icon-search></b-icon-search>
-        </template>
-        <b-form-input class="search-box" :placeholder="i18n('searchPlaceholder')" id="search-box"
-                      :value="value"
-                      @input="searchText = $event"
-                      @change="$emit('input', searchText)"></b-form-input>
-      </b-form-group>
+  <el-row>
+    <el-col :span="2" class="search-label">
+      <label for="search-box">
+        <icon-bi-search></icon-bi-search>
+      </label>
+    </el-col>
 
-      <b-form-group>
-        <b-icon-plus-square style="cursor: pointer" :title="i18n('addTask')" v-b-modal.modal-add-task></b-icon-plus-square>
-        <b-icon-folder2-open style="cursor: pointer" :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></b-icon-folder2-open>
-        <b-icon-gear style="cursor: pointer" :title="i18n('setting')" @click="openOptionPage"></b-icon-gear>
-        <b-icon-download style="cursor: pointer" :title="i18n('openDownloadPage')" @click="openDownloadPage"></b-icon-download>
-        <b-icon-bullseye style="cursor: pointer" :title="i18n('sniffer')" @click="openSniffer"></b-icon-bullseye>
-      </b-form-group>
-    </div>
-    <b-modal id="modal-add-task" :title="i18n('addTask')" @ok="addTask">
-      <b-form-group label-cols="2" label-for="downloadUrl" label="URL">
-        <b-form-input placeholder="URL" id="downloadUrl" v-model="downloadUrl"></b-form-input>
-      </b-form-group>
-      <b-form-group label-cols="2" label-for="downloadFileName" label="Name">
-        <b-form-input placeholder="File name(Optional)" v-model="downloadFilename"></b-form-input>
-      </b-form-group>
-    </b-modal>
-  </div>
+    <el-col :span="14">
+      <el-input v-model="searchText" :input-style="{border: 0}" id="search-box"
+                @change="$emit('update:modelValue', searchText)" :placeholder="i18n('searchPlaceholder')">
+      </el-input>
+    </el-col>
+
+    <el-col :span="8" class="action-buttons">
+      <icon-bi-plus-square style="cursor: pointer" :title="i18n('addTask')" @click="showAddTaskDialog = true"></icon-bi-plus-square>
+      <icon-bi-folder2-open style="cursor: pointer" :title="i18n('openDownloadFolder')" @click="openDownloadFolder"></icon-bi-folder2-open>
+      <icon-bi-gear style="cursor: pointer" :title="i18n('setting')" @click="openOptionPage"></icon-bi-gear>
+      <icon-bi-download style="cursor: pointer" :title="i18n('openDownloadPage')" @click="openDownloadPage"></icon-bi-download>
+      <icon-bi-bullseye style="cursor: pointer" :title="i18n('sniffer')" @click="openSniffer"></icon-bi-bullseye>
+    </el-col>
+  </el-row>
+
+  <el-dialog v-model="showAddTaskDialog" :title="i18n('addTask')" width="90%">
+    <el-form :model="downloadTask" label-width="15%">
+      <el-form-item label="URL">
+        <el-input v-model="downloadTask.url" placeholder="URL"></el-input>
+      </el-form-item>
+      <el-form-item label="Name">
+        <el-input v-model="downloadTask.filename" placeholder="File name(Optional)"></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="showAddTaskDialog = false">Cancel</el-button>
+      <el-button type="primary" @click="addTask">OK</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts">
-export default {
-  props: ['value'],
-  data() {
-    return {
-      searchText: this.value,
-      downloadUrl: <string>null,
-      downloadFilename: <string>null
-    }
-  },
-  methods: {
-    openDownloadFolder() {
+import {defineComponent, reactive, toRefs } from "vue";
+import { useRouter } from 'vue-router'
+
+
+export default defineComponent({
+  props: ['modelValue'],
+  setup(props) {
+    const data = reactive({
+      searchText: props.modelValue,
+      downloadTask: {
+        url: <string>null,
+        filename: <string>null,
+      },
+      showAddTaskDialog: false
+    })
+
+    function openDownloadFolder() {
       chrome.downloads.showDefaultFolder();
-    },
-    openOptionPage() {
+    }
+    function openOptionPage() {
       let a = chrome.extension.getURL("pages/options.html");
       chrome.tabs.query({ url: a }, function(b) {
         b.length ? chrome.tabs.update(b[0].id, {active: !0}) : chrome.tabs.create({ url: a});
       });
-    },
-    openDownloadPage() {
-      // let a = chrome.extension.getURL("pages/downloads.html");
+    }
+    function openDownloadPage() {
       let a = 'chrome://downloads/';
       chrome.tabs.query({ url: a }, function(b) {
         b.length ? chrome.tabs.update(b[0].id, {active: !0}) : chrome.tabs.create({ url: a});
       });
-    },
-    openSniffer() {
-      (<any>globalThis).app.navTo('/sniffer');
-    },
-    addTask() {
-      if (this.downloadUrl) {
+    }
+
+    const router = useRouter()
+    function openSniffer() {
+      router.push('/sniffer')
+    }
+
+    function addTask() {
+      if (data.downloadTask.url) {
         let option = {
-          url: this.downloadUrl
+          url: data.downloadTask.url
         };
-        if (this.downloadFilename) {
-          option['filename'] = this.downloadFilename;
+        if (data.downloadTask.filename) {
+          option['filename'] = data.downloadTask.filename
         }
         chrome.downloads.download(option);
       }
     }
+
+    return {
+      ...toRefs(data),
+      openDownloadFolder, openOptionPage, openDownloadPage, openSniffer, addTask
+    }
   }
-}
+})
 </script>
 
 <style scoped>
-.header {
-  position: fixed;
-  /*width: 410px;*/
-  width: 100%;
-  height: 50px;
-  background-color: white;
-  z-index: 1;
-  border-bottom: 1px solid lightgray;
+svg {
+  font-size: 1.3em;
 }
-.header-bar {
+.search-label {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 5px auto;
+  justify-content: end;
 }
-.search-box {
-  border: 0;
-}
-.search-box-form-group {
-  flex: 1;
-  margin-right: 1rem;
-}
-.search-box:focus {
-  box-shadow: none;
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 </style>

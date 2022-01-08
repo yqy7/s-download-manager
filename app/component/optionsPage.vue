@@ -6,43 +6,49 @@
   </div>
   <div class="content-panel container">
     <div class="setting-item">
-      <b-form-checkbox size="lg" v-model="enableShelf" switch @change="changeEnableShelf">Chrome Downloads Bar</b-form-checkbox>
+      <el-switch v-model="enableShelf" @change="changeEnableShelf" active-text="Chrome Downloads Bar"></el-switch>
     </div>
     <div class="setting-item">
-      <b-button @click="changeDownloadFolder" variant="outline-secondary">Change Download Folder</b-button>
+      <el-button @click="changeDownloadFolder">Change Download Folder</el-button>
     </div>
   </div>
 </div>
 </template>
 
 <script lang="ts">
+import {defineComponent, reactive, toRefs} from "vue";
 
-export default {
-  data() {
-    return {
+export default defineComponent({
+  setup() {
+    const data = reactive({
       enableShelf: false,
       imgUrl: chrome.extension.getURL("images/icon-32x32@2x.png")
-    }
-  },
-  created() {
+    })
+
     chrome.storage.local.get('shelfEnabled', (result) => {
-      this.enableShelf = result['shelfEnabled'];
-    });
-  },
-  methods: {
-    changeEnableShelf(enabled: boolean) {
+      data.enableShelf = result['shelfEnabled'];
+    })
+
+    function changeEnableShelf(enabled: boolean) {
       chrome.downloads.setShelfEnabled(enabled);
       this.enableShelf = enabled;
       chrome.storage.local.set({shelfEnabled: enabled});
-    },
-    changeDownloadFolder() {
+    }
+
+    function changeDownloadFolder() {
       let url = 'chrome://settings/downloads/';
       chrome.tabs.query({ url }, function(b) {
         b.length ? chrome.tabs.update(b[0].id, {active: !0}) : chrome.tabs.create({ url });
       });
     }
+
+    return {
+      ...toRefs(data),
+      changeEnableShelf,
+      changeDownloadFolder
+    }
   }
-}
+})
 </script>
 
 <style scoped>

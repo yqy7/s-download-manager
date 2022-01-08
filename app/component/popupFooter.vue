@@ -1,67 +1,86 @@
 <template>
-  <div class="footer container">
-    <div class="footer-bar">
-      <div class="page-action">
-        <b-icon-chevron-left style="cursor: pointer" :title="i18n('previousPage')" @click="$emit('pre-page')"></b-icon-chevron-left>
-        <b-icon-chevron-right style="cursor: pointer" :title="i18n('nextPage')" @click="$emit('next-page')"></b-icon-chevron-right>
-      </div>
+    <el-row class="footer-bar">
+      <el-col :span="4" class="page-action">
+        <icon-bi-chevron-left style="cursor: pointer" :title="i18n('previousPage')" @click="$emit('pre-page')"></icon-bi-chevron-left>
+        <icon-bi-chevron-right style="cursor: pointer" :title="i18n('nextPage')" @click="$emit('next-page')"></icon-bi-chevron-right>
+      </el-col>
 
-      <div class="actions">
-        <b-icon-trash id="delete-btn" style="cursor: pointer"></b-icon-trash>
-        <b-popover target="delete-btn" triggers="hover" placement="top" id="delete-popover">
-          <div>
-            <b-button @click="$emit('delete-finished')" squared variant="outline-danger">{{ i18n('deleteFinishedTask') }}</b-button>
-          </div>
-          <div>
-            <b-button @click="$emit('delete-file-missing')" squared variant="outline-danger">{{ i18n('deleteFileMissingTask') }}</b-button>
-          </div>
-          <div>
-            <b-button @click="$emit('delete-failed')" squared variant="outline-danger">{{ i18n('deleteFailedTask') }}</b-button>
-          </div>
-          <div>
-            <b-button @click="$emit('delete-all')" squared variant="outline-danger">{{ i18n('deleteAll') }}</b-button>
-          </div>
-        </b-popover>
-      </div>
-    </div>
-  </div>
+      <el-col :span="2" class="delete-actions">
+        <el-popover :auto-close="0"
+                    placement="top-start"
+            :width="200"
+            trigger="click" popper-class="delete-actions-popover">
+
+          <template #reference>
+            <icon-bi-trash id="delete-btn" style="cursor: pointer"></icon-bi-trash>
+          </template>
+
+          <ul class="delete-action-list">
+            <li @click="$emit('delete-finished')" class="delete-action-item">
+              {{ i18n('deleteFinishedTask') }}
+            </li>
+            <li @click="$emit('delete-file-missing')" class="delete-action-item">
+              {{ i18n('deleteFileMissingTask') }}
+            </li>
+            <li @click="$emit('delete-failed')" class="delete-action-item">
+              {{ i18n('deleteFailedTask') }}
+            </li>
+            <li @click="$emit('delete-all')" class="delete-action-item">
+              {{ i18n('deleteAll') }}
+            </li>
+          </ul>
+        </el-popover>
+      </el-col>
+    </el-row>
 </template>
 
 <script lang="ts">
-export default {
+import {defineComponent} from "vue";
 
-}
+export default defineComponent({
+
+})
 </script>
 
 <style scoped>
-.footer {
-  position: fixed;
-  bottom: 0;
-  background-color: white;
-  /*width: 410px;*/
-  width: 100%;
-  height: 50px;
-  border-top: 1px solid lightgray;
+svg {
+  font-size: 1.3em;
 }
 .footer-bar {
   display: flex;
   justify-content: space-between;
+  height: 100%;
 }
 .page-action {
-  height: 50px;
-  line-height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.actions {
-  height: 50px;
-  line-height: 50px;
+.delete-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-action-list {
+  margin: 0;
+  padding: 0;
+}
+.delete-action-item {
+  list-style: none;
+  text-align: center;
+  padding: 10px;
+  color: red;
+  cursor: pointer;
+}
+.delete-action-item:hover {
+  color: white;
+  background-color: red;
 }
 </style>
 <style>
-#delete-popover .popover-body button {
-  width: 100%;
-  border: 0;
-}
-#delete-popover .popover-body {
-  padding: 0;
+.delete-actions-popover {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 </style>

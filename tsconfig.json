@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "module": "es6",
     "target": "es6",
     "sourceMap": true,
     "allowJs": true,
     "moduleResolution": "node",
-    "suppressImplicitAnyIndexErrors": true
-  }
+    "suppressImplicitAnyIndexErrors": true,
+    "types": [
+      "unplugin-icons/webpack",
+      "chrome"
+    ]
+  },
+  "exclude": ["dist"]
 }

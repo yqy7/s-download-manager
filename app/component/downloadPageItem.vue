@@ -44,12 +44,19 @@
 </template>
 
 <script lang="ts">
-import mixin from '../scripts/downloadItemShare';
+import {defineComponent} from "vue";
+import {useDownloadHelper} from '../scripts/downloadItemShare';
 
-export default {
-  mixins: [mixin],
-  props: ['isSelected']
-}
+export default defineComponent({
+  props: ['isSelected'],
+  setup(props) {
+    const helper = useDownloadHelper(props)
+    return {
+      ...helper
+    }
+  }
+})
+
 </script>
 
 <style scoped>

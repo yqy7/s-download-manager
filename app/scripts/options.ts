@@ -1,9 +1,8 @@
-import createApp from "./app";
-import optionsPage from '../component/optionsPage.vue';
+import {createApp} from 'vue'
+import 'normalize.css/normalize.css'
 
-createApp({
-    el: '#app',
-    components: {
-        'app-root': optionsPage
-    }
-});
+import optionsPage from '../component/optionsPage.vue'
+
+const app = createApp(optionsPage)
+app.config.globalProperties.i18n = chrome.i18n.getMessage
+app.mount('#app')

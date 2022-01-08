@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div ref="download-item" class="download-item" v-on:mouseover="showActionPanel" v-on:mouseout="hideActionPanel">
+    <div ref="download-item" class="download-item" @mouseenter="showActionPanel" @mouseleave="hideActionPanel">
       <div>
         <img :src="icon_url" class="item-img"/>
       </div>
@@ -13,7 +13,7 @@
                'file-in-progress': item.state === 'in_progress',
                'file-interrupted': item.state === 'interrupted'}]"
                 @click="openFile">
-            {{ item.filename | shortName }}
+            {{ shortName(item.filename) }}
           </span>
           <span class="error-msg" v-if="hasError()">{{ errorMessage() }}</span>
         </div>
@@ -23,23 +23,25 @@
         </div>
 
         <div v-if="item.state === 'in_progress'" class="progress-status">
-          <b-icon-play-fill v-if="item.canResume" @click="resume" style="color: green;"></b-icon-play-fill>
-          <b-icon-pause v-else @click="pause" style="color: blue;"></b-icon-pause>
-          <b-icon-x @click="cancel" style="color: red;"></b-icon-x>
-          <b-progress :value="item.bytesReceived" :max="item.totalBytes" variant="success" show-progress style="width: 150px"></b-progress>
+          <icon-bi-play-fill v-if="item.canResume" @click="resume" style="color: green;"></icon-bi-play-fill>
+          <icon-bi-pause v-else @click="pause" style="color: blue;"></icon-bi-pause>
+          <icon-bi-x @click="cancel" style="color: red;"></icon-bi-x>
+
+          <el-progress :text-inside="true" :stroke-width="26" :percentage="item.bytesReceived/item.totalBytes" show-progress />
+
           <div class="download-speed" v-if="!item.paused">
             <span>
-              {{ speed | sizeFormat }}/s
+              {{ sizeFormat(speed) }}/s
             </span>
             <span style="border-left: solid 1px darkgrey; margin-left: 5px; padding-left: 5px">
-            {{ item.estimatedEndTime | timeLeft }}
+            {{ timeLeft(item.estimatedEndTime) }}
             </span>
           </div>
         </div>
 
         <div class="item-status-line">
-          <span>{{ item.bytesReceived | sizeFormat }}/{{ item.totalBytes | sizeFormat}}</span>
-          <span>{{ item.startTime | dateFormat }}</span>
+          <span>{{ sizeFormat(item.bytesReceived) }}/{{ sizeFormat(item.totalBytes) }}</span>
+          <span>{{ dateFormat(item.startTime) }}</span>
         </div>
       </div>
 
@@ -47,25 +49,25 @@
         <table class="action-panel" v-show="isShow" ref="action-panel">
           <tr>
             <td>
-              <b-icon-list :title="i18n('showDetail')" @click="isShowDetail=!isShowDetail" style="cursor: pointer;"></b-icon-list>
+              <icon-bi-list :title="i18n('showDetail')" @click="isShowDetail=!isShowDetail" style="cursor: pointer;"></icon-bi-list>
             </td>
             <td>
-              <b-icon-folder2-open :title="i18n('showInFolder')" @click="showInFolder" style="cursor: pointer;"></b-icon-folder2-open>
+              <icon-bi-folder2-open :title="i18n('showInFolder')" @click="showInFolder" style="cursor: pointer;"></icon-bi-folder2-open>
             </td>
             <td>
-              <b-icon-link :title="i18n('copyLink')" @click="copyLink" style="cursor: pointer;"></b-icon-link>
+              <icon-bi-link :title="i18n('copyLink')" @click="copyLink" style="cursor: pointer;"></icon-bi-link>
             </td>
             <td>
-              <b-icon-arrow-clockwise :title="i18n('retry')" @click="retry"
-                                      v-if="item.canResume" style="cursor: pointer;"></b-icon-arrow-clockwise>
+              <icon-bi-arrow-clockwise :title="i18n('retry')" @click="retry"
+                                      v-if="item.canResume" style="cursor: pointer;"></icon-bi-arrow-clockwise>
             </td>
           </tr>
           <tr>
             <td>
-              <b-icon-x-circle :title="i18n('delete')" style="color: red; cursor: pointer;" @click="deleteRecord"></b-icon-x-circle>
+              <icon-bi-x-circle :title="i18n('delete')" style="color: red; cursor: pointer;" @click="deleteRecord"></icon-bi-x-circle>
             </td>
             <td>
-              <b-icon-x-octagon-fill :title="i18n('deleteFile')" style="cursor: pointer;" @click="deleteFile"></b-icon-x-octagon-fill>
+              <icon-bi-x-octagon-fill :title="i18n('deleteFile')" style="cursor: pointer;" @click="deleteFile"></icon-bi-x-octagon-fill>
             </td>
           </tr>
         </table>
@@ -77,7 +79,7 @@
         <span class="item-detail-item-key">Id:</span> <span class="item-detail-item-content"> {{ item.id }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">Filename:</span> <span class="item-detail-item-content"> {{ item.filename | shortName}} </span>
+        <span class="item-detail-item-key">Filename:</span> <span class="item-detail-item-content"> {{ shortName(item.filename) }} </span>
       </div>
       <div class="item-detail-item">
         <span class="item-detail-item-key">Path:</span> <span class="item-detail-item-content"> {{ item.filename }} </span>
@@ -95,13 +97,13 @@
         <span class="item-detail-item-key">Final URL:</span> <span class="item-detail-item-content"> {{ item.finalUrl}} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">Start time: </span> <span class="item-detail-item-content"> {{ item.startTime | dateTimeFormat}} </span>
+        <span class="item-detail-item-key">Start time: </span> <span class="item-detail-item-content"> {{ dateTimeFormat(item.startTime) }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">End time:</span> <span class="item-detail-item-content"> {{ item.endTime | dateTimeFormat}} </span>
+        <span class="item-detail-item-key">End time:</span> <span class="item-detail-item-content"> {{ dateTimeFormat(item.endTime) }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">Estimated end time:</span> <span class="item-detail-item-content"> {{ item.estimatedEndTime | dateTimeFormat}} </span>
+        <span class="item-detail-item-key">Estimated end time:</span> <span class="item-detail-item-content"> {{ dateTimeFormat(item.estimatedEndTime) }} </span>
       </div>
       <div class="item-detail-item">
         <span class="item-detail-item-key">State:</span> <span class="item-detail-item-content"> {{ item.state }} </span>
@@ -125,13 +127,13 @@
         <span class="item-detail-item-key">Incognito:</span> <span class="item-detail-item-content"> {{ item.incognito }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">Bytes received:</span> <span class="item-detail-item-content"> {{ item.bytesReceived | sizeFormat }} </span>
+        <span class="item-detail-item-key">Bytes received:</span> <span class="item-detail-item-content"> {{ sizeFormat(item.bytesReceived) }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">Total bytes:</span> <span class="item-detail-item-content"> {{ item.totalBytes | sizeFormat}} </span>
+        <span class="item-detail-item-key">Total bytes:</span> <span class="item-detail-item-content"> {{ sizeFormat(item.totalBytes) }} </span>
       </div>
       <div class="item-detail-item">
-        <span class="item-detail-item-key">File size:</span> <span class="item-detail-item-content"> {{ item.fileSize | sizeFormat}} </span>
+        <span class="item-detail-item-key">File size:</span> <span class="item-detail-item-content"> {{ sizeFormat(item.fileSize) }} </span>
       </div>
       <div class="item-detail-item">
         <span class="item-detail-item-key">By extension id:</span> <span class="item-detail-item-content"> {{ item.byExtensionId }} </span>
@@ -144,30 +146,41 @@
 </template>
 
 <script lang="ts">
-import DownloadItem = chrome.downloads.DownloadItem;
-import util from "../scripts/util";
-import mixin from '../scripts/downloadItemShare';
+import {defineComponent, reactive, toRefs} from "vue";
+import {useDownloadHelper} from '../scripts/downloadItemShare';
+import {shortName, sizeFormat, timeLeft, dateFormat, dateTimeFormat} from '../scripts/util'
 
-export default {
-  mixins: [mixin],
-  data(){
-    return  {
+export default defineComponent({
+  props: ['value'],
+  setup(props) {
+    const data = reactive({
       isShow: false,
       isShowDetail: false,
+    })
+
+    function onUpdated() {
+      // this.$refs['action-panel'].style.height = window.getComputedStyle(this.$refs['download-item']).height;
     }
-  },
-  updated() {
-    this.$refs['action-panel'].style.height = window.getComputedStyle(this.$refs['download-item']).height;
-  },
-  methods: {
-    showActionPanel() {
-      this.isShow = true;
-    },
-    hideActionPanel() {
-      this.isShow = false;
+
+    function showActionPanel() {
+      data.isShow = true;
+    }
+
+    function hideActionPanel() {
+      data.isShow = false;
+    }
+
+    const helper = useDownloadHelper(props)
+
+    return {
+      ...toRefs(data),
+      showActionPanel, hideActionPanel,
+      ...helper,
+      shortName, sizeFormat, timeLeft, dateFormat, dateTimeFormat
     }
   }
-}
+})
+
 </script>
 
 <style scoped>
@@ -263,13 +276,15 @@ export default {
 
 /* transition */
 .slide-fade-enter-active {
-  transition: all .3s ease;
+  transition: all .8s ease;
 }
+
 .slide-fade-leave-active {
-  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
-.slide-fade-enter, .slide-fade-leave-to
-  /* .slide-fade-leave-active for below version 2.1.8 */ {
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
   transform: translateX(10px);
   opacity: 0;
 }

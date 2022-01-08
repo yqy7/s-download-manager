@@ -1,160 +1,166 @@
-import util from "./util";
 import DownloadItem = chrome.downloads.DownloadItem;
+import {reactive, toRefs} from "vue";
+import {copyTextInNodeToClipboard, copyToClipboard, i18n} from "./util";
 
-export default {
-    props: ['value'],
-    data(){
-        return  {
-            item: <DownloadItem>this.value,
-            speed: 0,
-            danger_accepted: false,
-            icon_url: <string>null
-        }
-    },
-    created() {
-        this.initDownloadItem();
-    },
-    updated() {
-        // 有时候显示不出来
-        if (!this.icon_url && this.item.filename) {
+export function useDownloadHelper(props) {
+    const data = reactive({
+        item: <DownloadItem>props.value,
+        speed: 0,
+        danger_accepted: false,
+        icon_url: <string>null
+    })
+
+    function initDownloadItem() {
+        if (data.item.filename) {
             chrome.downloads.getFileIcon(
-                this.item.id,
+                data.item.id,
                 {'size': 32},
                 (icon_url) => {
                     if (icon_url) {
-                        this.icon_url = icon_url;
-                        this.item.icon_url = icon_url;
+                        data.icon_url = icon_url;
+                        data.item['icon_url'] = icon_url;
                     }
                 });
         }
-    },
-    methods: {
-        initDownloadItem() {
-            if (this.item.filename) {
-                chrome.downloads.getFileIcon(
-                    this.item.id,
-                    {'size': 32},
-                    (icon_url) => {
-                        if (icon_url) {
-                            this.icon_url = icon_url;
-                            this.item.icon_url = icon_url;
-                        }
-                    });
-            }
-            if (this.item.state === 'in_progress' && !this.item.paused) {
-                this.progress_polling();
-            }
+        if (data.item.state === 'in_progress' && !data.item.paused) {
+            progress_polling();
+        }
 
-            chrome.downloads.onChanged.addListener(downloadDelta => {
-                if (downloadDelta.danger && downloadDelta.danger.current == 'accepted') {
-                    this.progress_polling();
-                }
-            });
-        },
-        openFile() {
-            let item = this.item;
-            if (item.exists && item.filename && item.state == 'complete') {
-                chrome.downloads.open(item.id);
+        chrome.downloads.onChanged.addListener(downloadDelta => {
+            if (downloadDelta.danger && downloadDelta.danger.current == 'accepted') {
+                progress_polling();
             }
-        },
-        showInFolder() {
-            let item = this.item;
-            if (item.exists && item.filename && item.state == 'complete') {
-                chrome.downloads.show(item.id);
-            }
-        },
-        openUrl(url: string) {
-            chrome.tabs.create({ url });
-        },
-        copyLink() {
-            util.copyToClipboard(this.item.finalUrl);
-        },
-        pause(){
-            chrome.downloads.pause(this.item.id, () => {
-                this.progress_polling();
-            });
-        },
-        resume() {
-            chrome.downloads.resume(this.item.id, () => {
-                this.progress_polling();
-            });
-        },
-        retry() {
-            this.resume();
-        },
-        cancel() {
-            chrome.downloads.cancel(this.item.id, () => {
-                this.progress_polling();
-            });
-        },
-        progress_polling() {
-            chrome.downloads.search({
-                id: this.item.id
-            }, (results: DownloadItem[]) => {
-                let item = results[0];
-                if (item) {
-                    if (item['bytesReceived']) {
-                        this.speed = item['bytesReceived'] - this.item['bytesReceived'];
+        });
+    }
+
+    function onUpdated() {
+        // 有时候显示不出来
+        if (!data.icon_url && data.item.filename) {
+            chrome.downloads.getFileIcon(
+                data.item.id,
+                {'size': 32},
+                (icon_url) => {
+                    if (icon_url) {
+                        data.icon_url = icon_url;
+                        data.item['icon_url'] = icon_url;
                     }
-
-                    for (let k in item) {
-                        this.item[k] = item[k];
-                    }
-                }
-
-                if (this.item.state === 'in_progress' && !this.item.paused) {
-                    if (this.item.bytesReceived == this.item.totalBytes && (this.item.danger != 'safe' || this.item.danger != 'accepted')) {
-                        chrome.downloads.acceptDanger(this.item.id, () => {
-                            this.progress_polling();
-                        });
-                    } else {
-                        setTimeout(() => {
-                            this.progress_polling();
-                        }, 1000);
-                    }
-                }
-            });
-        },
-        deleteRecord() {
-            chrome.downloads.erase({
-                id: this.item.id
-            }, () => {
-
-            });
-        },
-        deleteFile() {
-            if (this.fileExists()) {
-                chrome.downloads.removeFile(this.item.id, () => {
-                    chrome.downloads.erase({
-                        id: this.item.id
-                    }, () => {
-                    });
                 });
-            } else {
-                chrome.downloads.erase({
-                    id: this.item.id
-                }, () => {
-                });
-            }
-        },
-        itemDetailCopy(event: Event) {
-            let ele = <HTMLElement>event.target;
-            if (ele.className == 'item-detail-item-content') {
-                util.copyTextInNodeToClipboard(ele);
-            }
-        },
-        fileExists() {
-            return (this.item.state == 'complete' && this.item.exists && this.item.filename);
-        },
-        hasError() {
-            return this.item.state == 'interrupted' || (!this.fileExists() && this.item.state != 'in_progress');
-        },
-        errorMessage() {
-            if (this.item.error) {
-                return this.i18n(this.item.error) ? this.i18n(this.item.error) : this.item.error;
-            } else {
-                return this.i18n('deleted');
-            }
         }
     }
+
+    function openFile() {
+        let item = data.item;
+        if (item.exists && item.filename && item.state == 'complete') {
+            chrome.downloads.open(item.id);
+        }
+    }
+
+    function showInFolder() {
+        let item = data.item;
+        if (item.exists && item.filename && item.state == 'complete') {
+            chrome.downloads.show(item.id);
+        }
+    }
+
+    function openUrl(url: string) {
+        chrome.tabs.create({ url });
+    }
+    function copyLink() {
+        copyToClipboard(data.item.finalUrl);
+    }
+    function pause(){
+        chrome.downloads.pause(data.item.id, () => {
+            progress_polling();
+        });
+    }
+    function resume() {
+        chrome.downloads.resume(data.item.id, () => {
+            progress_polling();
+        });
+    }
+    function retry() {
+        resume();
+    }
+    function cancel() {
+        chrome.downloads.cancel(data.item.id, () => {
+            progress_polling();
+        });
+    }
+    function progress_polling() {
+        chrome.downloads.search({
+            id: data.item.id
+        }, (results: DownloadItem[]) => {
+            let item = results[0];
+            if (item) {
+                if (item['bytesReceived']) {
+                    data.speed = item['bytesReceived'] - data.item['bytesReceived'];
+                }
+
+                for (let k in item) {
+                    data.item[k] = item[k];
+                }
+            }
+
+            if (data.item.state === 'in_progress' && !data.item.paused) {
+                if (data.item.bytesReceived == data.item.totalBytes && (data.item.danger !== 'safe' && data.item.danger !== 'accepted')) {
+                    chrome.downloads.acceptDanger(data.item.id, () => {
+                        progress_polling();
+                    });
+                } else {
+                    setTimeout(() => {
+                        progress_polling();
+                    }, 1000);
+                }
+            }
+        });
+    }
+    function deleteRecord() {
+        chrome.downloads.erase({
+            id: data.item.id
+        }, () => {
+
+        });
+    }
+    function deleteFile() {
+        if (fileExists()) {
+            chrome.downloads.removeFile(data.item.id, () => {
+                chrome.downloads.erase({
+                    id: data.item.id
+                }, () => {
+                });
+            });
+        } else {
+            chrome.downloads.erase({
+                id: data.item.id
+            }, () => {
+            });
+        }
+    }
+    function itemDetailCopy(event: Event) {
+        let ele = <HTMLElement>event.target;
+        if (ele.className == 'item-detail-item-content') {
+            copyTextInNodeToClipboard(ele);
+        }
+    }
+    function fileExists() {
+        return (data.item.state == 'complete' && data.item.exists && data.item.filename);
+    }
+    function hasError() {
+        return data.item.state == 'interrupted' || (!fileExists() && data.item.state != 'in_progress');
+    }
+    function errorMessage() {
+        if (data.item.error) {
+            return i18n(data.item.error) ? i18n(data.item.error) : data.item.error;
+        } else {
+            return i18n('deleted');
+        }
+    }
+
+    initDownloadItem()
+    return {
+        ...toRefs(data),
+        onUpdated, openFile, showInFolder, openUrl, copyLink, pause, resume, retry, cancel,
+        progress_polling, deleteRecord, deleteFile, itemDetailCopy, fileExists, hasError, errorMessage
+    }
+
 }

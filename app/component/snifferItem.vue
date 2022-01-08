@@ -1,7 +1,7 @@
 <template>
 <div>
-  <div class="sniffer-item" @click="select" :class="{selected: isSelected}">
-    <span class="selected-tag" v-if="isSelected"></span>
+  <div class="sniffer-item" @click="item.isSelected = !item.isSelected" :class="{selected: item.isSelected}">
+    <span class="selected-tag" v-if="item.isSelected"></span>
     <div class="item-img">
       <slot name="image">
         <div class="img-block">
@@ -11,7 +11,7 @@
     </div>
     <div class="item-info">
       <div :title="item.name">
-        {{ item.name }}
+        {{ item.name || item.url }}
       </div>
 
       <div class="item-url" :title="item.url">
@@ -23,7 +23,7 @@
           {{ item.type }}
         </span>
         <span>
-          {{ item.size | sizeFormat }}
+          {{ sizeFormat(item.size) }}
         </span>
       </div>
     </div>
@@ -32,26 +32,17 @@
 </template>
 
 <script lang="ts">
-import util from "../scripts/util";
+import {defineComponent} from "vue";
+import {sizeFormat} from '../scripts/util'
 
-export default {
+export default defineComponent({
   props: ['item'],
-  data() {
+  setup() {
     return {
-      isSelected: this.item.isSelected
-    }
-  },
-  methods: {
-    select() {
-      this.item.isSelected = !this.item.isSelected;
-    }
-  },
-  watch: {
-    'item.isSelected': function (newValue: boolean) {
-      this.isSelected = newValue;
+      sizeFormat
     }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -106,6 +97,7 @@ export default {
   padding-left: 20px;
   width: 100%;
   overflow: hidden;
+  line-height: 2;
 }
 .status-line {
   display: flex;
