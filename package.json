@@ -1,6 +1,6 @@
 {
   "name": "S-Download-Manager",
-  "version": "0.0.2",
+  "version": "0.2.1",
   "description": "Manage downloads.",
   "scripts": {
     "dev": "webextension-toolbox dev",
@@ -22,7 +22,6 @@
     "vue": "^3.2.22",
     "vue-loader": "^16.8.3",
     "vue-router": "^4.0.12",
-    "webpack-watched-glob-entries-plugin": "^2.2.6",
-    "webpack-webextension-plugin": "^1.0.0"
+    "webpack-watched-glob-entries-plugin": "^2.2.6"
   }
 }

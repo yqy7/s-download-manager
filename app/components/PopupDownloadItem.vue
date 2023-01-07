@@ -145,41 +145,32 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, reactive, toRefs} from "vue";
+<script lang="ts" setup>
+import {reactive, toRefs} from "vue";
 import {useDownloadHelper} from '../scripts/downloadItemShare';
 import {shortName, sizeFormat, timeLeft, dateFormat, dateTimeFormat} from '../scripts/util'
 
-export default defineComponent({
-  props: ['value'],
-  setup(props) {
-    const data = reactive({
-      isShow: false,
-      isShowDetail: false,
-    })
+const props = defineProps(['value'])
 
-    function onUpdated() {
-      // this.$refs['action-panel'].style.height = window.getComputedStyle(this.$refs['download-item']).height;
-    }
-
-    function showActionPanel() {
-      data.isShow = true;
-    }
-
-    function hideActionPanel() {
-      data.isShow = false;
-    }
-
-    const helper = useDownloadHelper(props)
-
-    return {
-      ...toRefs(data),
-      showActionPanel, hideActionPanel,
-      ...helper,
-      shortName, sizeFormat, timeLeft, dateFormat, dateTimeFormat
-    }
-  }
+const data = reactive({
+  isShow: false,
+  isShowDetail: false,
 })
+
+function showActionPanel() {
+  data.isShow = true;
+}
+
+function hideActionPanel() {
+  data.isShow = false;
+}
+
+const { isShow, isShowDetail  } = toRefs(data)
+
+const helper = useDownloadHelper(props)
+const {item, itemDetailCopy, copyLink, danger_accepted,
+    cancel, errorMessage, hasError, fileExists, deleteFile, openFile, deleteRecord,
+    openUrl, icon_url, pause, resume, retry, progress_polling, speed, onUpdated, showInFolder} = helper
 
 </script>
 

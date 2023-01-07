@@ -17,26 +17,6 @@
         </b-navbar-nav>
       </b-navbar>
 
-<!--      <div class="header">-->
-<!--        <div>-->
-<!--          <b-form-checkbox-group v-model="stateSelected">-->
-<!--            <b-form-checkbox value="downloading">Downloading</b-form-checkbox>-->
-<!--            <b-form-checkbox value="finished">Finished</b-form-checkbox>-->
-<!--            <b-form-checkbox value="interrupted">Interrupted</b-form-checkbox>-->
-<!--          </b-form-checkbox-group>-->
-<!--        </div>-->
-
-<!--        <div>-->
-<!--          <b-form-checkbox-group v-model="fileTypeSelected">-->
-<!--            <b-form-checkbox value="audio">Audio</b-form-checkbox>-->
-<!--            <b-form-checkbox value="video">Video</b-form-checkbox>-->
-<!--            <b-form-checkbox value="image">Image</b-form-checkbox>-->
-<!--            <b-form-checkbox value="document">Document</b-form-checkbox>-->
-<!--            <b-form-checkbox value="other">Other</b-form-checkbox>-->
-<!--          </b-form-checkbox-group>-->
-<!--        </div>-->
-<!--      </div>-->
-
       <div class="content">
         <ul class="item-list">
           <li v-for="item in items" :key="item.id" class="list-item">
@@ -126,88 +106,81 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import DownloadItem = chrome.downloads.DownloadItem;
-import {defineComponent, reactive, toRefs} from "vue";
-import downloadPageItem from "./downloadPageItem.vue";
+import {reactive, toRefs} from "vue";
+import DownloadPageItem from "./DownloadPageItem.vue";
 class ResizeObj {
   mouseDownX: number;
   width: number;
   maxWidth: number;
   minWidth: number;
 }
-export default defineComponent({
-  components: {
-    downloadPageItem
-  },
-  setup() {
-    const data = reactive({
-      searchText: '',
-      stateSelected: ['downloading', 'finished', 'interrupted'],
-      fileTypeSelected: ['audio', 'video', 'image', 'document', 'other'],
-      items: <DownloadItem[]>null,
-      itemSelected: <DownloadItem>null,
-      sidebarResizing: <ResizeObj>null
-    })
 
-    function search() {
-      chrome.downloads.search({
-        orderBy:['-startTime'],
-        limit: 100,
-        query: [data.searchText]
-      }, (items) => {
-        data.items = items;
-      });
-    }
-    function selectItem(item: DownloadItem) {
-      item['isSelected'] = !item['isSelected'];
-      if (item['isSelected']) {
-        data.items.forEach((it: DownloadItem) => {
-          if (it !== item) {
-            it['isSelected'] = false;
-          }
-        });
-        data.itemSelected = item;
-      } else {
-        data.itemSelected = null;
+const data = reactive({
+  searchText: '',
+  stateSelected: ['downloading', 'finished', 'interrupted'],
+  fileTypeSelected: ['audio', 'video', 'image', 'document', 'other'],
+  items: <DownloadItem[]>null,
+  itemSelected: <DownloadItem>null,
+  sidebarResizing: <ResizeObj>null
+})
+
+function search() {
+  chrome.downloads.search({
+    orderBy:['-startTime'],
+    limit: 100,
+    query: [data.searchText]
+  }, (items) => {
+      console.log(items)
+    data.items = items;
+  });
+}
+function selectItem(item: DownloadItem) {
+  item['isSelected'] = !item['isSelected'];
+  if (item['isSelected']) {
+    data.items.forEach((it: DownloadItem) => {
+      if (it !== item) {
+        it['isSelected'] = false;
       }
+    });
+    data.itemSelected = item;
+  } else {
+    data.itemSelected = null;
+  }
 
-      this.$forceUpdate();
+  this.$forceUpdate();
+}
+function startResizeSidebar(event: MouseEvent) {
+  data.sidebarResizing = {
+    mouseDownX: event.clientX,
+    width: parseFloat(window.getComputedStyle(this.$refs['sidebar']).width),
+    maxWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).maxWidth),
+    minWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).minWidth)
+  };
+  document.body.style.userSelect = 'none';
+}
+function resizeSidebar(event: MouseEvent) {
+  if (data.sidebarResizing) {
+    let w;
+    if (event.clientX > data.sidebarResizing.mouseDownX) {
+      w = data.sidebarResizing.width - (event.clientX - data.sidebarResizing.mouseDownX);
+    } else {
+      w = data.sidebarResizing.width + (data.sidebarResizing.mouseDownX - event.clientX);
     }
-    function startResizeSidebar(event: MouseEvent) {
-      data.sidebarResizing = {
-        mouseDownX: event.clientX,
-        width: parseFloat(window.getComputedStyle(this.$refs['sidebar']).width),
-        maxWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).maxWidth),
-        minWidth: parseFloat(window.getComputedStyle(this.$refs['sidebar']).minWidth)
-      };
-      document.body.style.userSelect = 'none';
-    }
-    function resizeSidebar(event: MouseEvent) {
-      if (data.sidebarResizing) {
-        let w;
-        if (event.clientX > data.sidebarResizing.mouseDownX) {
-          w = data.sidebarResizing.width - (event.clientX - data.sidebarResizing.mouseDownX);
-        } else {
-          w = data.sidebarResizing.width + (data.sidebarResizing.mouseDownX - event.clientX);
-        }
-        if (!(data.sidebarResizing.maxWidth && w > data.sidebarResizing.maxWidth) || !(data.sidebarResizing.minWidth && w < data.sidebarResizing.minWidth)) {
-          this.$refs['sidebar'].style.width = w + 'px';
-        }
-      }
-    }
-    function stopResizeSidebar() {
-      data.sidebarResizing = null;
-      document.body.style.userSelect = '';
-    }
-
-    search()
-    return {
-      ...toRefs(data),
-      search, selectItem, startResizeSidebar, resizeSidebar, stopResizeSidebar
+    if (!(data.sidebarResizing.maxWidth && w > data.sidebarResizing.maxWidth) || !(data.sidebarResizing.minWidth && w < data.sidebarResizing.minWidth)) {
+      this.$refs['sidebar'].style.width = w + 'px';
     }
   }
-})
+}
+function stopResizeSidebar() {
+  data.sidebarResizing = null;
+  document.body.style.userSelect = '';
+}
+
+search()
+const {items, itemSelected, stateSelected, fileTypeSelected, sidebarResizing, searchText} = toRefs(data)
+
 </script>
 
 <style scoped>

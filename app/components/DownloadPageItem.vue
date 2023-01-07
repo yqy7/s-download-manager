@@ -43,19 +43,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script lang="ts" setup>
 import {useDownloadHelper} from '../scripts/downloadItemShare';
+import {fileResType} from '../scripts/util'
 
-export default defineComponent({
-  props: ['isSelected'],
-  setup(props) {
-    const helper = useDownloadHelper(props)
-    return {
-      ...helper
-    }
-  }
-})
+const props = defineProps(['isSelected', 'value'])
+const helper = useDownloadHelper(props)
+const {item, itemDetailCopy, copyLink, danger_accepted,
+    cancel, errorMessage, hasError, fileExists, deleteFile, openFile, deleteRecord,
+    openUrl, icon_url, pause, resume, retry, progress_polling, speed, onUpdated, showInFolder} = helper
+
 
 </script>
 

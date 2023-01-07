@@ -10,7 +10,8 @@
     "types": [
       "unplugin-icons/webpack",
       "chrome"
-    ]
+    ],
+    "baseUrl": "."
   },
   "exclude": ["dist"]
 }
