@@ -9,6 +9,7 @@
   "devDependencies": {
     "@iconify-json/bi": "^1.0.9",
     "@types/chrome": "^0.0.164",
+    "@webextension-toolbox/webextension-toolbox": "latest",
     "css-loader": "^6.5.1",
     "dayjs": "^1.10.7",
     "element-plus": "^1.2.0-beta.3",
@@ -21,6 +22,7 @@
     "vue": "^3.2.22",
     "vue-loader": "^16.8.3",
     "vue-router": "^4.0.12",
-    "webextension-toolbox": "latest"
+    "webpack-watched-glob-entries-plugin": "^2.2.6",
+    "webpack-webextension-plugin": "^1.0.0"
   }
 }

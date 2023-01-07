@@ -35,6 +35,9 @@ https://chrome.google.com/webstore/detail/s-download-manager/niofdpkjkmgemjmcjlo
     npm run build opera
     npm run build edge
 
+升级笔记
+"<all_urls>" 变成
+"host_permissions": ["*://*/*"]
 
-
+删除 "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 

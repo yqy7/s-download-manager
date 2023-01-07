@@ -12,26 +12,26 @@ const WebextensionPlugin = require('webpack-webextension-plugin')
 
 module.exports = {
   webpack: (config, {dev, vendor}) => {
-    config.module.rules.push({
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      }, {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      }, {
-        test: /\.ts$/,
-        loader: 'ts-loader',
-        options: {
-          appendTsSuffixTo: [/\.vue$/]
-        },
-        exclude: /node_modules/
+    config.module.rules = [{
+      test: /\.vue$/,
+      loader: 'vue-loader'
+    }, {
+      test: /\.css$/i,
+      use: ['style-loader', 'css-loader'],
+    }, {
+      test: /\.ts$/,
+      loader: 'ts-loader',
+      options: {
+        appendTsSuffixTo: [/\.vue$/]
       },
+      exclude: /node_modules/
+    },
       { // 这里修复element-plus带来的问题
         test: /\.mjs$/,
         resolve: {fullySpecified: false},
         include: /node_modules/,
         type: "javascript/auto"
-      });
+      }]
 
     config.plugins.push(
       new webpack.DefinePlugin({
@@ -68,6 +68,7 @@ module.exports = {
 
     // config.devtool = 'inline-source-map';
     console.log(config)
+    console.log(config.module.rules)
     return config
   }
 }

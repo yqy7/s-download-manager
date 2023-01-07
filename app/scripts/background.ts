@@ -20,7 +20,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 function changeBadgeText() {
   chrome.downloads.search({state: 'in_progress'}, function (results) {
     let badgeText = results.length > 0 ? results.length.toString() : '';
-    chrome.browserAction.setBadgeText({
+    chrome.action.setBadgeText({
       text: badgeText
     });
   });
@@ -155,3 +155,8 @@ chrome.tabs.onRemoved.addListener(function(tabId: number, removeInfo:TabRemoveIn
 
 // for debug
 (<any>globalThis).snifferData = snifferData;
+
+chrome.storage.local.get('shelfEnabled', (result) => {
+  console.log('设置shelf enabled', result['shelfEnabled']); // 重启浏览器的时候需要运行
+  chrome.downloads.setShelfEnabled(result['shelfEnabled']);
+})

@@ -22,7 +22,7 @@ export default defineComponent({
   setup() {
     const data = reactive({
       enableShelf: false,
-      imgUrl: chrome.extension.getURL("images/icon-32x32@2x.png")
+      imgUrl: chrome.runtime.getURL("images/icon-32x32@2x.png")
     })
 
     chrome.storage.local.get('shelfEnabled', (result) => {

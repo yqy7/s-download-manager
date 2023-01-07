@@ -58,7 +58,7 @@ export default defineComponent({
       chrome.downloads.showDefaultFolder();
     }
     function openOptionPage() {
-      let a = chrome.extension.getURL("pages/options.html");
+      let a = chrome.runtime.getURL("pages/options.html");
       chrome.tabs.query({ url: a }, function(b) {
         b.length ? chrome.tabs.update(b[0].id, {active: !0}) : chrome.tabs.create({ url: a});
       });
