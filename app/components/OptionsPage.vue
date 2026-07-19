@@ -5,7 +5,6 @@
         </div>
 
         <div class="content">
-            <el-switch v-model="enableShelf" @change="changeEnableShelf" active-text="Chrome Downloads Bar"/>
             <el-button @click="changeDownloadFolder">Change Download Folder</el-button>
         </div>
     </div>
@@ -22,12 +21,6 @@ const data = reactive({
 chrome.storage.local.get('shelfEnabled', (result) => {
     data.enableShelf = result['shelfEnabled'];
 })
-
-function changeEnableShelf(enabled: boolean) {
-    chrome.downloads.setShelfEnabled(enabled);
-    this.enableShelf = enabled;
-    chrome.storage.local.set({shelfEnabled: enabled});
-}
 
 function changeDownloadFolder() {
     let url = 'chrome://settings/downloads/';

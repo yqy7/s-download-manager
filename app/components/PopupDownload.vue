@@ -169,6 +169,7 @@ watch(searchText, (nv, ov) => {
 .header {
     position: fixed;
     height: 40px;
+    line-height: 40px;
     width: 100%;
     top: 0;
     left: 0;

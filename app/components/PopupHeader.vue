@@ -1,11 +1,5 @@
 <template>
-    <el-row>
-        <el-col :span="2" class="search-label">
-            <label for="search-box">
-                <icon-bi-search/>
-            </label>
-        </el-col>
-
+    <el-row style="justify-content: center;">
         <el-col :span="14">
             <el-input id="search-box"
                       v-model="searchText"
@@ -103,12 +97,6 @@ const {searchText, showAddTaskDialog, downloadTask} = toRefs(data)
 <style scoped>
 svg {
     font-size: 1.3em;
-}
-
-.search-label {
-    display: flex;
-    align-items: center;
-    justify-content: end;
 }
 
 .action-buttons {
