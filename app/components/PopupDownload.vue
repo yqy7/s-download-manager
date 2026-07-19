@@ -58,7 +58,7 @@ function deleteAll() {
             confirmButtonText: 'OK',
             cancelButtonText: 'Cancel',
             type: 'warning',
-            customStyle: 'width: 300px;'
+            customStyle: { width: '300px' }
         }
     ).then(() => {
         chrome.downloads.erase({

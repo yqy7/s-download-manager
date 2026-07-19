@@ -32,14 +32,14 @@
       <div class="resize-bar" @mousedown="startResizeSidebar"></div>
       <div class="item-detail container" :title="i18n('doubleClickCopy')">
         <div class="item-img-wrapper">
-          <img :src="(fileResType(itemSelected.mime) === 'image' && (itemSelected.state == 'complete' && itemSelected.exists && itemSelected.filename)) ? 'file://' + itemSelected.filename : itemSelected.icon_url" class="item-img"/>
+          <img :src="(fileResType(itemSelected.mime) === 'image' && (itemSelected.state == 'complete' && itemSelected.exists && itemSelected.filename)) ? 'file://' + itemSelected.filename : itemSelected['icon_url']" class="item-img"/>
         </div>
 
         <div class="item-detail-item">
           <span class="item-detail-item-key">Id:</span> <span class="item-detail-item-content"> {{ itemSelected.id }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">Filename:</span> <span class="item-detail-item-content"> {{ itemSelected.filename | shortName}} </span>
+          <span class="item-detail-item-key">Filename:</span> <span class="item-detail-item-content"> {{ shortName(itemSelected.filename) }} </span>
         </div>
         <div class="item-detail-item">
           <span class="item-detail-item-key">Path:</span> <span class="item-detail-item-content"> {{ itemSelected.filename }} </span>
@@ -57,13 +57,13 @@
           <span class="item-detail-item-key">Final URL:</span> <span class="item-detail-item-content"> {{ itemSelected.finalUrl}} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">Start time: </span> <span class="item-detail-item-content"> {{ itemSelected.startTime | dateTimeFormat}} </span>
+          <span class="item-detail-item-key">Start time: </span> <span class="item-detail-item-content"> {{ dateTimeFormat(itemSelected.startTime) }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">End time:</span> <span class="item-detail-item-content"> {{ itemSelected.endTime | dateTimeFormat}} </span>
+          <span class="item-detail-item-key">End time:</span> <span class="item-detail-item-content"> {{ dateTimeFormat(itemSelected.endTime) }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">Estimated end time:</span> <span class="item-detail-item-content"> {{ itemSelected.estimatedEndTime | dateTimeFormat}} </span>
+          <span class="item-detail-item-key">Estimated end time:</span> <span class="item-detail-item-content"> {{ dateTimeFormat(itemSelected.estimatedEndTime) }} </span>
         </div>
         <div class="item-detail-item">
           <span class="item-detail-item-key">State:</span> <span class="item-detail-item-content"> {{ itemSelected.state }} </span>
@@ -87,13 +87,13 @@
           <span class="item-detail-item-key">Incognito:</span> <span class="item-detail-item-content"> {{ itemSelected.incognito }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">Bytes received:</span> <span class="item-detail-item-content"> {{ itemSelected.bytesReceived | sizeFormat }} </span>
+          <span class="item-detail-item-key">Bytes received:</span> <span class="item-detail-item-content"> {{ sizeFormat(itemSelected.bytesReceived) }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">Total bytes:</span> <span class="item-detail-item-content"> {{ itemSelected.totalBytes | sizeFormat}} </span>
+          <span class="item-detail-item-key">Total bytes:</span> <span class="item-detail-item-content"> {{ sizeFormat(itemSelected.totalBytes) }} </span>
         </div>
         <div class="item-detail-item">
-          <span class="item-detail-item-key">File size:</span> <span class="item-detail-item-content"> {{ itemSelected.fileSize | sizeFormat}} </span>
+          <span class="item-detail-item-key">File size:</span> <span class="item-detail-item-content"> {{ sizeFormat(itemSelected.fileSize) }} </span>
         </div>
         <div class="item-detail-item">
           <span class="item-detail-item-key">By extension id:</span> <span class="item-detail-item-content"> {{ itemSelected.byExtensionId }} </span>
@@ -110,6 +110,7 @@
 import DownloadItem = chrome.downloads.DownloadItem;
 import {reactive, toRefs} from "vue";
 import DownloadPageItem from "./DownloadPageItem.vue";
+import {shortName, dateTimeFormat, sizeFormat, fileResType, i18n} from '../scripts/util';
 class ResizeObj {
   mouseDownX: number;
   width: number;

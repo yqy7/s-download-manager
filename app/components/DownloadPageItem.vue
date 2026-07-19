@@ -11,7 +11,7 @@
                'file-not-exists': !fileExists() && item.state !== 'in_progress',
                'file-in-progress': item.state === 'in_progress',
                'file-interrupted': item.state === 'interrupted'}]">
-            {{ item.filename | shortName }}
+            {{ shortName(item.filename) }}
           </span>
         <span class="error-msg" v-if="hasError()">{{ errorMessage() }}</span>
       </div>
@@ -27,17 +27,17 @@
         <b-progress :value="item.bytesReceived" :max="item.totalBytes" variant="success" show-progress style="width: 150px"></b-progress>
         <div class="download-speed" v-if="!item.paused">
             <span>
-              {{ speed | sizeFormat }}/s
+              {{ sizeFormat(speed) }}/s
             </span>
           <span style="border-left: solid 1px darkgrey; margin-left: 5px; padding-left: 5px">
-            {{ item.estimatedEndTime | timeLeft }}
+            {{ timeLeft(item.estimatedEndTime) }}
             </span>
         </div>
       </div>
 
       <div class="item-status-line">
-        <span>{{ item.bytesReceived | sizeFormat }}/{{ item.totalBytes | sizeFormat}}</span>
-        <span>{{ item.startTime | dateFormat }}</span>
+        <span>{{ sizeFormat(item.bytesReceived) }}/{{ sizeFormat(item.totalBytes) }}</span>
+        <span>{{ dateFormat(item.startTime) }}</span>
       </div>
     </div>
   </div>
@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import {useDownloadHelper} from '../scripts/downloadItemShare';
-import {fileResType} from '../scripts/util'
+import {fileResType, shortName, sizeFormat, timeLeft, dateFormat} from '../scripts/util'
 
 const props = defineProps(['isSelected', 'value'])
 const helper = useDownloadHelper(props)
